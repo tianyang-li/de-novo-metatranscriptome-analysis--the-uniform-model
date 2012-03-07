@@ -22,4 +22,21 @@
 # tmy1018@gmail.com
 
 """
+mathematical functions to use during calculations
+
+intermediate results are stored for further use
 """
+
+class _Binom(object):
+    def __init__(self):
+        self._binom_cache = []
+
+    def __call__(self, n, k):
+        if k > n:
+            return 0
+                
+binom = _Binom
+
+    
+    
+

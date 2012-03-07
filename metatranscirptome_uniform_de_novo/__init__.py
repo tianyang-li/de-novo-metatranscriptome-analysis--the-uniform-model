@@ -21,4 +21,10 @@
 # Copyright (2012) Tianyang Li
 # tmy1018@gmail.com
 
+"""
+a package for estimating transcript abundance without a reference
+genome in metatranscriptome data analysis
+
+it's assumed that reads are uniformly distributed
+"""
 

@@ -17,11 +17,31 @@
 import sys
 import getopt
 
-import metatranscirptome_uniform_de_novo
+import metatranscirptome_uniform_de_novo as uni
 
 def main(args):
+    bowtie2, contigs, read_len, kmer = None, None, None, None
+    try:
+        opts, args = getopt.getopt(args, 'b:c:l:k:')
+    except getopt.GetoptError as err:
+        print >> sys.stderr, str(err)
+        sys.exit(2)
+    for opt, arg in opts:
+        if opt == 'b':
+            # bowtie2 SAM file
+            bowtie2 = arg
+        if opt == 'c':
+            # FASTA file containing contigs
+            contigs = arg
+        if opt == '-l':
+            read_len = int(arg)
+        if opt == 'k':
+            kmer = int(arg)
+    if bowtie2 == None or contigs == None or read_len == None or kmer == None:
+        print >> sys.stderr, "Missing options"
+        sys.exit(2)
     
-if __name__=='__main__':
+if __name__ == '__main__':
     main(sys.argv[1:])
 
 
