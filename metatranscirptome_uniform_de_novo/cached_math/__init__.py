@@ -29,7 +29,9 @@ intermediate results are stored for further use
 
 import cached_math
 
-fact = cached_math._Fact()
+fact = cached_math._Factorial()
 
 binom = cached_math._Binom()
+
+stl2=cached_math._Stirling2()
 

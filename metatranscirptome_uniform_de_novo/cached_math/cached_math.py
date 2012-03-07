@@ -27,28 +27,34 @@ mathematical functions to use during calculations
 intermediate results are stored for further use
 """
 
-class _Fact(object):
+class _Factorial(object):
     def __init__(self):
-        self._fact_cache = [1]
+        self._factorial_cache = [1]
     
     def __call__(self, n):
         if len(self._fact_cache) <= n:
-            prod = self._fact_cache[-1]
-            for i in range(len(self._fact_cache), n + 1):
+            prod = self._factorial_cache[-1]
+            for i in range(len(self._factorial_cache), n + 1):
                 prod *= i
-                self._fact_cache.append(prod)
+                self._factorial_cache.append(prod)
             return prod
         else:
-            return self._fact_cache[n]
+            return self._factorial_cache[n]
 
 class _Binom(object):
     def __init__(self):
         self._binom_cache = []
 
     def __call__(self, n, k):
-        if k > n:
+        if k > n or n < 0 or k < 0:
             return 0
-        #TODO
+        
+
+class _Stirling2(object):
+    def __init__(self):
+        self._stirling2_cache = []
+
+    def __call__(self,):
                 
 
     
