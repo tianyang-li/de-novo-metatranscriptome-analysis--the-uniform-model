@@ -41,8 +41,6 @@ class _Fact(object):
         else:
             return self._fact_cache[n]
 
-fact = _Fact()
-
 class _Binom(object):
     def __init__(self):
         self._binom_cache = []
@@ -52,7 +50,6 @@ class _Binom(object):
             return 0
         #TODO
                 
-binom = _Binom()
 
     
     
