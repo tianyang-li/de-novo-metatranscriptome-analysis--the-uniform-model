@@ -29,34 +29,58 @@ intermediate results are stored for further use
 
 class _Factorial(object):
     def __init__(self):
+        # fact(n) = self._factorial_cache[n]
         self._factorial_cache = [1]
     
     def __call__(self, n):
-        if len(self._fact_cache) <= n:
+        if len(self._factorial_cache) <= n:
             prod = self._factorial_cache[-1]
+            append = self._factorial_cache.append
             for i in range(len(self._factorial_cache), n + 1):
                 prod *= i
-                self._factorial_cache.append(prod)
+                append(prod)
             return prod
         else:
             return self._factorial_cache[n]
+        
 
 class _Binom(object):
     def __init__(self):
-        self._binom_cache = []
+        # binom(n, k) = self._binom_cache[n][k]
+        self._binom_cache = [[0]]
 
     def __call__(self, n, k):
         if k > n or n < 0 or k < 0:
             return 0
-        
+        #TODO
+                                 
 
-class _Stirling2(object):
+class _FactorialStirling2(object):
+    """
+    k! * S(n, k)
+    """
     def __init__(self):
-        self._stirling2_cache = []
+        # fact_stl2(n, k) = self._factorial_stirling2_cache[n][k]
+        self._factorial_stirling2_cache = []
 
-    def __call__(self,):
-                
+    def __call__(self, n, k):
+        if k > n:
+            return 0
+        #TODO
 
+class _IntExponent(object):
+    """
+    n ** m (n >= 0, m >= 0) 
+    0 ** 0 = 1
+    """    
+    def __init__(self):
+        self._int_exponent_cache = [[1]]
     
-    
+    def __call__(self, n, m):
+        if n == 0:
+            if m == 0:
+                return 1
+            else:
+                return 0
+        #TODO
 

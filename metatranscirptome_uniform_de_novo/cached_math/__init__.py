@@ -33,5 +33,7 @@ fact = cached_math._Factorial()
 
 binom = cached_math._Binom()
 
-stl2=cached_math._Stirling2()
+fact_stl2 = cached_math._FactorialStirling2()
+
+exp=cached_math._IntExponent()
 
