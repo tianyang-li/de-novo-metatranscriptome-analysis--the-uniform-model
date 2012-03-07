@@ -27,6 +27,22 @@ mathematical functions to use during calculations
 intermediate results are stored for further use
 """
 
+class _Fact(object):
+    def __init__(self):
+        self._fact_cache = [1]
+    
+    def __call__(self, n):
+        if len(self._fact_cache) <= n:
+            prod = self._fact_cache[-1]
+            for i in range(len(self._fact_cache), n + 1):
+                prod *= i
+                self._fact_cache.append(prod)
+            return prod
+        else:
+            return self._fact_cache[n]
+
+fact = _Fact()
+
 class _Binom(object):
     def __init__(self):
         self._binom_cache = []
@@ -34,8 +50,9 @@ class _Binom(object):
     def __call__(self, n, k):
         if k > n:
             return 0
+        #TODO
                 
-binom = _Binom
+binom = _Binom()
 
     
     
