@@ -28,5 +28,5 @@ genome in metatranscriptome data analysis
 it's assumed that reads are uniformly distributed
 """
 
-import cached_math
+import _cached_math
 

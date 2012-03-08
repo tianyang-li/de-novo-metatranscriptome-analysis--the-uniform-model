@@ -17,7 +17,7 @@
 import sys
 import getopt
 
-import metatranscirptome_uniform_de_novo as uni
+import metatranscriptome_uniform_de_novo as uni
 
 def main(args):
     sam, contigs, read_len, kmer = None, None, None, None

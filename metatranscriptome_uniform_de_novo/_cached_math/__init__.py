@@ -27,13 +27,13 @@ mathematical functions to use during calculations
 intermediate results are stored for further use
 """
 
-import cached_math
+import _cached_math
 
-fact = cached_math._Factorial()
+fact = _cached_math._Factorial()
 
-binom = cached_math._Binom()
+binom = _cached_math._Binom()
 
-fact_stl2 = cached_math._FactorialStirling2()
+fact_stl2 = _cached_math._FactorialStirling2()
 
-exp=cached_math._IntExponent()
+exp = _cached_math._IntExponent()
 

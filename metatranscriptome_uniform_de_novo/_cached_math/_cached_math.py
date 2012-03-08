@@ -54,7 +54,12 @@ class _Binom(object):
             return 0
         if n < len(self._binom_cache):
             if k < len(self._binom_cache[n]):
-                return self._binom_cache[n][k]                    
+                return self._binom_cache[n][k] 
+        else:
+            for i in xrange(n):
+                if i < k:
+                    #TODO
+                    return 0
 
 class _FactorialStirling2(object):
     """
