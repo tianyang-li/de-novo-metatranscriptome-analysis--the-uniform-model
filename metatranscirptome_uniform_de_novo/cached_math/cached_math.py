@@ -36,7 +36,7 @@ class _Factorial(object):
         if len(self._factorial_cache) <= n:
             prod = self._factorial_cache[-1]
             append = self._factorial_cache.append
-            for i in range(len(self._factorial_cache), n + 1):
+            for i in xrange(len(self._factorial_cache), n + 1):
                 prod *= i
                 append(prod)
             return prod
@@ -47,13 +47,14 @@ class _Factorial(object):
 class _Binom(object):
     def __init__(self):
         # binom(n, k) = self._binom_cache[n][k]
-        self._binom_cache = [[0]]
+        self._binom_cache = [[1]]
 
     def __call__(self, n, k):
         if k > n or n < 0 or k < 0:
             return 0
-        #TODO
-                                 
+        if n < len(self._binom_cache):
+            if k < len(self._binom_cache[n]):
+                return self._binom_cache[n][k]                    
 
 class _FactorialStirling2(object):
     """
