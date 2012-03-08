@@ -3,7 +3,7 @@
 import unittest
 import random
 from test import test_support
-
+from nzmath.combinatorial import stirling2
 from scipy.misc import comb, factorial
 
 import metatranscriptome_uniform_de_novo._cached_math as cm

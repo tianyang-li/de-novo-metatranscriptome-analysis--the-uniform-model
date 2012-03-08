@@ -40,6 +40,8 @@ def main(args):
     if sam == None or contigs == None or read_len == None or kmer == None:
         print >> sys.stderr, "Missing options"
         sys.exit(2)
+        
+    #TODO
     
 if __name__ == '__main__':
     main(sys.argv[1:])
