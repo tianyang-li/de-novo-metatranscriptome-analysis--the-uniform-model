@@ -31,8 +31,6 @@ import _cached_math
 
 fact = _cached_math._Factorial()
 
-binom = _cached_math._Binom()
-
 fact_stl2 = _cached_math._FactorialStirling2()
 
 exp = _cached_math._IntExponent()
