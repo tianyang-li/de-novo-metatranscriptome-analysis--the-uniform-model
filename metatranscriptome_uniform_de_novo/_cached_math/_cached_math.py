@@ -54,7 +54,7 @@ class _Binom(object):
         for i in xrange(n + 1):
             if len(self._binom_cache) <= i:
                 self._binom_cache.append([1])
-            for j in xrange(len(self._binom_cache[i], k + 1)):
+            for j in xrange(len(self._binom_cache[i]), min(k, i) + 1):
                 self._binom_cache[i].append(self._binom_cache[i - 1][j - 1])
                 if j <= i - 1:
                     self._binom_cache[i][j] += self._binom_cache[i - 1][j]                
