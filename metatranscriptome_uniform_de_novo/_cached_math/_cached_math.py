@@ -48,26 +48,19 @@ class _FactorialStirling2(object):
     """
     def __init__(self):
         # fact_stl2(n, k) = self._factorial_stirling2_cache[n][k]
-        self._factorial_stirling2_cache = []
+        self._factorial_stirling2_cache = [1]
+        self._max_n = 0
 
     def __call__(self, n, k):
         if k > n:
             return 0
-        #TODO
-
-class _IntExponent(object):
-    """
-    n ** m (n >= 0, m >= 0) 
-    0 ** 0 = 1
-    """    
-    def __init__(self):
-        self._int_exponent_cache = [[1]]
-    
-    def __call__(self, n, m):
-        if n == 0:
-            if m == 0:
-                return 1
-            else:
-                return 0
-        #TODO
-
+        if n > self._max_n:
+            for i in xrange(self._max_n + 1, n + 1):
+                self._factorial_stirling2_cache.append(0)
+                for j in xrange(1, i): 
+                    self._factorial_stirling2_cache.append(j * (self._factorial_stirling2_cache[(i - 1) * i / 2 + j] + self._factorial_stirling2_cache[(i - 1) * i / 2 + j - 1]))
+                self._factorial_stirling2_cache.append(i * self._factorial_stirling2_cache[i * (i - 1) / 2 + i - 1])
+            self._max_n = n
+        return self._factorial_stirling2_cache[(n + 1) * n / 2 + k]
+        
+        

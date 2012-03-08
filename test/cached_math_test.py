@@ -13,9 +13,18 @@ class TestFact(unittest.TestCase):
         for i in xrange(1000):
             n = random.randint(0, 10000)
             self.assertEqual(cm.fact(n), factorial(n, exact=1), "fix factorial")
+
+class TestFactStl2(unittest.TestCase):
+    def test_fact_stl2(self):
+        for i in xrange(1000):
+            n = random.randint(0, 2000)
+            k = random.randint(0, n)
+            a = cm.fact(k) * stirling2(n, k)
+            b = cm.fact_stl2(n, k)
+            self.assertEquals(a, b, "good %d mine %d" % (a, b))
         
 def test_main():
-    test_support.run_unittest()
+    test_support.run_unittest(TestFactStl2)
 
 if __name__ == '__main__':
     test_main()

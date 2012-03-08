@@ -33,5 +33,3 @@ fact = _cached_math._Factorial()
 
 fact_stl2 = _cached_math._FactorialStirling2()
 
-exp = _cached_math._IntExponent()
-
