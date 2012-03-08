@@ -46,19 +46,21 @@ class _Factorial(object):
 class _Binom(object):
     def __init__(self):
         # binom(n, k) = self._binom_cache[n][k]
-        self._binom_cache = [[1]]
+        self._binom_cache = [1]
+        self._max_n = 0
 
     def __call__(self, n, k):
         if k > n or n < 0 or k < 0:
             return 0
-        for i in xrange(n + 1):
-            if len(self._binom_cache) <= i:
-                self._binom_cache.append([1])
-            for j in xrange(len(self._binom_cache[i]), min(k, i) + 1):
-                self._binom_cache[i].append(self._binom_cache[i - 1][j - 1])
-                if j <= i - 1:
-                    self._binom_cache[i][j] += self._binom_cache[i - 1][j]                
-        return self._binom_cache[n][k]
+        if self._max_n < n:
+            for i in xrange(self._max_n + 1, n + 1):
+                self._binom_cache.append(1)
+                for j in xrange(1, n):
+                    self._binom_cache.append(self._binom_cache[i * (i - 1) / 2 + j - 1] + self._binom_cache[i * (i - 1) / 2 + j])
+                self._binom_cache.append(1)
+            self._max_n = n
+        return self._binom_cache[n * (n + 1) / 2 + k]
+                
 
 class _FactorialStirling2(object):
     """
