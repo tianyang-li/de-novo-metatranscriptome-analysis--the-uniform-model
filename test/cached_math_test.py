@@ -10,12 +10,13 @@ import metatranscriptome_uniform_de_novo._cached_math as cm
 
 class TestFact(unittest.TestCase):
     def test_fact(self):
-        for i in xrange(5):
+        for i in xrange(1000):
             n = random.randint(0, 10000)
-            self.assertEqual(cm.fact(n) , factorial(n, exact=1), "fix factorial")
-    
+            self.assertEqual(cm.fact(n), factorial(n, exact=1), "fix factorial")
+
+class TestComb(unittest.TestCase):    
     def test_comb(self):
-        for i in xrange(100):
+        for i in xrange(1000):
             n = random.randint(0, 5000)
             k = random.randint(0, n)
             self.assertEqual(cm.binom(n, k), comb(n, k, exact=1), "fix comb")
