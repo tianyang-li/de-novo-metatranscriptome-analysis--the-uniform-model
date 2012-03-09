@@ -8,7 +8,7 @@ We assume that all reads coming from a transcript are uniformly distributed alon
 [Biopython](http://biopython.org/wiki/Main_Page), 
 [HTSeq](http://www-huber.embl.de/users/anders/HTSeq/doc/overview.html), 
 [NumPy](http://numpy.scipy.org/), 
-and [Scipy](http://scipy.org/) need to be already installed.
+and [SciPy](http://scipy.org/) need to be already installed.
 
 # License
 This tool for de novo metatranscriptome analysis is released under GPLv3.
