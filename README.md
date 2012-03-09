@@ -16,4 +16,4 @@ This tool for de novo metatranscriptome analysis is released under GPLv3.
 
 ***
 # Got any questions, or just interested in this project?
-Please contact me at [tmy1018@gmail.com](tmy1018@gmail.com)
+Please contact me (Tianyang Li) at [tmy1018@gmail.com](tmy1018@gmail.com).
