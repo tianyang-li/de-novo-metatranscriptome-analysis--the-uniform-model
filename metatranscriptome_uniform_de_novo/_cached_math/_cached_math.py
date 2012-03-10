@@ -29,7 +29,7 @@ intermediate results are stored for further use
 """
 
 import bsddb3.db as db
-from os import remove
+from os.path import isfile
 from sys import stderr
 
 class _Factorial(object):
