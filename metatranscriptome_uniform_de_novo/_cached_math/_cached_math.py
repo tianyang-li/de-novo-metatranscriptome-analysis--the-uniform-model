@@ -30,6 +30,7 @@ intermediate results are stored for further use
 
 import bsddb3.db as db
 from os.path import isfile
+from sys import stderr
 
 class _Factorial(object):
     def __init__(self):
@@ -48,13 +49,16 @@ class _Factorial(object):
 
 class _FactorialBSDDB(object):
     _n_max = "n_max"
+    _db = "factorial.bsddb"
     
     def __init__(self):
         self._cache = db.DB()
-        if not isfile("factorial.bsddb"):
-            self._cache.open("factorial.bsddb", dbtype=db.DB_BTREE, flags=db.DB_CREATE)
+        if not isfile(self._db):
+            print >> stderr, "Creating new factorial.bsddb"
+            self._cache.open(self._db, dbtype=db.DB_BTREE, flags=db.DB_CREATE)
         else:
-            self._cache.open("factorial.bsddb", dbtype=db.DB_BTREE)
+            print >> stderr, "Using old factorial.bsddb"
+            self._cache.open(self._db, dbtype=db.DB_BTREE)
         self._cache.put("0", "1")
         self._cache.put(self._n_max, "0")
     
@@ -70,6 +74,7 @@ class _FactorialBSDDB(object):
         return int(self._cache.get(str(n)))
         
     def close(self):
+        print >> stderr, "Saving factorial.bsddb"
         self._cache.close()
 
 class _FactorialStirling2(object):
