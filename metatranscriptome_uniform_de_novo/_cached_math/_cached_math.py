@@ -29,7 +29,7 @@ intermediate results are stored for further use
 """
 
 import bsddb3.db as db
-from os.path import isfile
+from os import remove
 from sys import stderr
 
 class _Factorial(object):
@@ -48,34 +48,26 @@ class _Factorial(object):
             return self._factorial_cache[n]
 
 class _FactorialBSDDB(object):
-    _n_max = "n_max"
     _db = "factorial.bsddb"
     
     def __init__(self):
         self._cache = db.DB()
-        if not isfile(self._db):
-            print >> stderr, "Creating new factorial.bsddb"
-            self._cache.open(self._db, dbtype=db.DB_BTREE, flags=db.DB_CREATE)
-        else:
-            print >> stderr, "Using old factorial.bsddb"
-            self._cache.open(self._db, dbtype=db.DB_BTREE)
-        self._cache.put("0", "1")
-        self._cache.put(self._n_max, "0")
+        self._cache.open(self._db, dbtype=db.DB_RECNO, flags=db.DB_CREATE)
+        self._cache.put(0, "1")
+        self._n_max = 0
     
     def __call__(self, n):
-        n_max = int(self._cache.get(self._n_max)) 
-        if n > n_max:
-            prod = int(self._cache.get(str(n_max)))
-            for i in xrange(n_max + 1, n + 1):
+        if n > self._n_max:
+            prod = int(self._cache.get(str(self._n_max)))
+            for i in xrange(self._n_max + 1, n + 1):
                 prod *= i
-                self._cache.put(str(i), str(prod))
-            self._cache.put(self._n_max, str(n))
+                self._cache.put(i, str(prod))
             return prod
         return int(self._cache.get(str(n)))
         
     def close(self):
-        print >> stderr, "Saving factorial.bsddb"
         self._cache.close()
+        remove(self._db)
 
 class _FactorialStirling2(object):
     """
