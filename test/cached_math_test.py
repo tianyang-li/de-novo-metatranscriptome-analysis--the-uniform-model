@@ -12,7 +12,7 @@ class TestFact(unittest.TestCase):
     def test_fact(self):
         for i in xrange(1000):
             n = random.randint(0, 2000)
-            self.assertEqual(cm.fact(n), cm.fact_db(n), "fix factorial")
+            self.assertEqual(cm.fact(n), cm.fact(n), "fix factorial")
 
 class TestFactStl2(unittest.TestCase):
     def test_fact_stl2(self):
@@ -24,7 +24,7 @@ class TestFactStl2(unittest.TestCase):
             self.assertEquals(a, b, "good %d mine %d" % (a, b))
         
 def test_main():
-    test_support.run_unittest(TestFact)
+    test_support.run_unittest()
 
 if __name__ == '__main__':
     test_main()

@@ -47,27 +47,6 @@ class _Factorial(object):
         else:
             return self._factorial_cache[n]
 
-class _FactorialBSDDB(object):
-    _db = "factorial.bsddb"
-    
-    def __init__(self):
-        self._cache = db.DB()
-        self._cache.open(self._db, dbtype=db.DB_RECNO, flags=db.DB_CREATE)
-        self._cache.put(0, "1")
-        self._n_max = 0
-    
-    def __call__(self, n):
-        if n > self._n_max:
-            prod = int(self._cache.get(str(self._n_max)))
-            for i in xrange(self._n_max + 1, n + 1):
-                prod *= i
-                self._cache.put(i, str(prod))
-            return prod
-        return int(self._cache.get(str(n)))
-        
-    def close(self):
-        self._cache.close()
-        remove(self._db)
 
 class _FactorialStirling2(object):
     """
