@@ -11,10 +11,10 @@ import metatranscriptome_uniform_de_novo._math as rm
 
 class TestFactStl2(unittest.TestCase):
     def test_fact_stl2(self):
-        for i in xrange(100):
+        for i in xrange(1000):
             n = random.randint(0, 1000)
             k = random.randint(0, n)
-            a = cm.fact(k) * stirling2(n, k)
+            a = cm.fact_stl2(n, k)
             b = cm.fact_stl2(n, k)
             self.assertEqual(a, b, "fix simple version")
             

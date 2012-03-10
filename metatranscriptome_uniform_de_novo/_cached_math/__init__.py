@@ -31,11 +31,14 @@ import atexit
 
 import _cached_math
 
-fact = _cached_math._Factorial()
+fact = _cached_math.Factorial()
 
-fact_stl2 = _cached_math._FactorialStirling2()
+fact_stl2 = _cached_math.FactorialStirling2()
+
+binom = _cached_math.Binom()
 
 def _close_cache():
+    binom.close()
     fact_stl2.close()
 
 atexit.register(_close_cache)
