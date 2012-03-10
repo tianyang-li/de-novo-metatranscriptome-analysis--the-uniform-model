@@ -27,8 +27,20 @@ math functions with no cache
 
 from _cached_math import fact
 
-def fact_stl2(n,k):
+def fact_stl2(n, k):
     """
     k! S(n, k)
     """
-    
+    if n < k or n < 0 or k < 0:
+        return 0
+    prev = [1]
+    for i in xrange(1, n + 1):
+        cur = [0]
+        for j in xrange(1, min(k, i)):
+            cur.append(j * (prev[j] + prev[j - 1]))
+        if k >= i:
+            cur.append(i * prev[i - 1])
+        else:
+            cur.append(k * (prev[k] + prev[k - 1]))
+        prev = cur
+    return prev[k]
