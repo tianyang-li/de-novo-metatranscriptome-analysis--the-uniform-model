@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from genericpath import isfile
 
 # This file is part of de_novo_uniform_metatranscriptome.
 # 
@@ -27,6 +28,9 @@ mathematical functions to use during calculations
 intermediate results are stored for further use
 """
 
+import bsddb3.db as db
+from os.path import isfile
+
 class _Factorial(object):
     def __init__(self):
         # fact(n) = self._factorial_cache[n]
@@ -41,6 +45,32 @@ class _Factorial(object):
             return prod
         else:
             return self._factorial_cache[n]
+
+class _FactorialBSDDB(object):
+    _n_max = "n_max"
+    
+    def __init__(self):
+        self._cache = db.DB()
+        if not isfile("factorial.bsddb"):
+            self._cache.open("factorial.bsddb", dbtype=db.DB_BTREE, flags=db.DB_CREATE)
+        else:
+            self._cache.open("factorial.bsddb", dbtype=db.DB_BTREE)
+        self._cache.put("0", "1")
+        self._cache.put(self._n_max, "0")
+    
+    def __call__(self, n):
+        n_max = int(self._cache.get(self._n_max)) 
+        if n > n_max:
+            prod = int(self._cache.get(str(n_max)))
+            for i in xrange(n_max + 1, n + 1):
+                prod *= i
+                self._cache.put(str(i), str(prod))
+            self._cache.put(self._n_max, str(n))
+            return prod
+        return int(self._cache.get(str(n)))
+        
+    def close(self):
+        self._cache.close()
 
 class _FactorialStirling2(object):
     """

@@ -27,9 +27,16 @@ mathematical functions to use during calculations
 intermediate results are stored for further use
 """
 
+import atexit
+
 import _cached_math
 
 fact = _cached_math._Factorial()
 
+fact_db = _cached_math._FactorialBSDDB()
+
 fact_stl2 = _cached_math._FactorialStirling2()
+
+def cache_db_close():
+    fact_db.close()
 

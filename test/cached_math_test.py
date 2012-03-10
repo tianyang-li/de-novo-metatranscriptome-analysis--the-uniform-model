@@ -11,8 +11,8 @@ import metatranscriptome_uniform_de_novo._cached_math as cm
 class TestFact(unittest.TestCase):
     def test_fact(self):
         for i in xrange(1000):
-            n = random.randint(0, 10000)
-            self.assertEqual(cm.fact(n), factorial(n, exact=1), "fix factorial")
+            n = random.randint(0, 5000)
+            self.assertEqual(cm.fact(n), cm.fact_db(n), "fix factorial")
 
 class TestFactStl2(unittest.TestCase):
     def test_fact_stl2(self):
@@ -24,7 +24,7 @@ class TestFactStl2(unittest.TestCase):
             self.assertEquals(a, b, "good %d mine %d" % (a, b))
         
 def test_main():
-    test_support.run_unittest(TestFactStl2)
+    test_support.run_unittest(TestFact)
 
 if __name__ == '__main__':
     test_main()
