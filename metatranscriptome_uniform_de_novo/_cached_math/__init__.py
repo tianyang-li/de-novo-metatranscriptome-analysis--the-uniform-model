@@ -35,3 +35,10 @@ fact = _cached_math._Factorial()
 
 fact_stl2 = _cached_math._FactorialStirling2()
 
+def _close_cache():
+    fact_stl2.close()
+
+atexit.register(_close_cache)
+
+
+
