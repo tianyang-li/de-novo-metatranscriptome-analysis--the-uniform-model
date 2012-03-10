@@ -40,3 +40,5 @@ fact_stl2 = _cached_math._FactorialStirling2()
 def cache_db_close():
     fact_db.close()
 
+atexit.register(cache_db_close)
+
