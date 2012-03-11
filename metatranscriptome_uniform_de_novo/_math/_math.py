@@ -22,29 +22,36 @@
 # tmy1018@gmail.com
 
 """
-mathematical functions to use during calculations
-
-intermediate results are stored for further use
+math functions with no cache
 """
 
-import atexit
+from os.path import isfile
+import bsddb3.db as db
 
-import _cached_math
-
-fact = _cached_math.Factorial()
-
-fact_stl2 = _cached_math.FactorialStirling2()
-
-binom = _cached_math.Binom()
-
-int_exp =_cached_math.IntExp()
-
-def _close_cache():
-    binom.close()
-    fact_stl2.close()
-    int_exp.close()
-
-atexit.register(_close_cache)
+from .._cached_math import fact, binom, fact_stl2
+ 
+class RestrictIntEq(object):
+    _cache_name = "restrict_int_eq.bsddb"
+    
+    def __init__(self):
+        self._cache = db.DB()
+        if isfile(self._cache_name):
+            self._cache.open(self._cache_name, db.DB_BTREE)
+        else:
+            self._cache.open(self._cache_name, db.DB_BTREE, flags=db.DB_CREATE)
+            
+    def __call__(self, n, m, d):
+        """
+        # of integer solutions
+        
+        x_1 + x_2 + ... + x_n = m
+        
+        0 < x_i <= d
+        """
+        
+    
+    def close(self):
+        self._cache.close()
 
 
 

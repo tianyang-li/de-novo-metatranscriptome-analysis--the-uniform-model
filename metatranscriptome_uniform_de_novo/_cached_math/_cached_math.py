@@ -22,7 +22,7 @@
 # tmy1018@gmail.com
 
 """
-mathematical functions to use during calculations
+basic mathematical functions to use during calculations
 
 intermediate results are stored for further use
 """
@@ -117,5 +117,32 @@ class Binom(object):
         self._cache.put(self._n_max_key, str(self._n_max))
         self._cache.close()
 
-         
+class IntExp(object):
+    _cache_name = "int_exp.bsddb"
+    
+    def __init__(self):
+        self._cache = db.DB()
+        if isfile(self._cache_name):
+            self._cache.open(self._cache_name, dbtype=db.DB_BTREE)
+        else:
+            self._cache.open(self._cache_name, dbtype=db.DB_BTREE, flags=db.DB_CREATE)
+            
+    def __call__(self, n, m):
+        """
+        n ** m
+        
+        0 ** 0 = 1
+        
+        assumes that n >= 0 and m >= 0
+        """
+        if n == 1:
+            return 1
+        if n == 0:
+            if m == 0:
+                return 1
+            else:
+                return 0
+    
+    def close(self):
+        self._cache.close()
         

@@ -28,5 +28,18 @@ genome in metatranscriptome data analysis
 it's assumed that reads are uniformly distributed
 """
 
-import _cached_math
+import atexit
+
+import _estimator
+
+ln_umvue = _estimator.LN_UMVUE()
+
+def close_cache():
+    ln_umvue.close()
+
+atexit.register(close_cache)
+
+
+
+
 

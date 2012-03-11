@@ -21,26 +21,24 @@
 # Copyright (2012) Tianyang Li
 # tmy1018@gmail.com
 
-"""
-math functions with no cache
-"""
+import bsddb3.db as db
+from os.path import isfile
 
-from _cached_math import fact
+import _cached_math
+import _math
 
-def fact_stl2(n, k):
-    """
-    k! S(n, k)
-    """
-    if n < k or n < 0 or k < 0:
-        return 0
-    prev = [1]
-    for i in xrange(1, n + 1):
-        cur = [0]
-        for j in xrange(1, min(k, i)):
-            cur.append(j * (prev[j] + prev[j - 1]))
-        if k >= i:
-            cur.append(i * prev[i - 1])
-        else:
-            cur.append(k * (prev[k] + prev[k - 1]))
-        prev = cur
-    return prev[k]
+class LN_UMVUE(object):
+    _cache_name="LN_UMVUE.bsddb"
+    
+    def __init__(self):
+        self._cache = db.DB()
+    
+    def __call__(self, c, n, d):
+        """
+        """
+    
+    def close(self):
+        self._cache.close()
+    
+    
+

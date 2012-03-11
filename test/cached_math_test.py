@@ -29,7 +29,7 @@ class TestBinom(unittest.TestCase):
             n = random.randint(0, 4000)
             k = random.randint(0, n)
             a = cm.binom(n, k)
-            b = cm.binom(n, k)
+            b = comb(n, k, exact=1)
             self.assertEqual(a, b, "fix it")
         
 def test_main():
