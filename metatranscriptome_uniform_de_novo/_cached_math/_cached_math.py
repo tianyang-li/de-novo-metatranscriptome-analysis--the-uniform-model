@@ -29,6 +29,7 @@ intermediate results are stored for further use
 
 import bsddb3.db as db
 from os.path import isfile
+import marshal
 
 
 class Factorial(object):
@@ -142,6 +143,8 @@ class IntExp(object):
                 return 1
             else:
                 return 0
+        # n >= 2
+        
     
     def close(self):
         self._cache.close()

@@ -27,6 +27,7 @@ math functions with no cache
 
 from os.path import isfile
 import bsddb3.db as db
+import marshal
 
 from .._cached_math import fact, binom, fact_stl2
  
