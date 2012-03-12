@@ -29,7 +29,7 @@ intermediate results are stored for further use
 
 import bsddb3.db as db
 from os.path import isfile
-import marshal
+from marshal import loads, dumps
 
 
 class Factorial(object):
@@ -48,6 +48,7 @@ class Factorial(object):
             return self._factorial_cache[n]
 
 
+
 class FactorialStirling2(object):
     """
     k! * S(n, k)
@@ -61,11 +62,11 @@ class FactorialStirling2(object):
         self._cache = db.DB()
         if isfile(self._cache_name):
             self._cache.open(self._cache_name, dbtype=db.DB_BTREE)
-            self._n_max = int(self._cache.get(self._n_max_key))
+            self._n_max = loads(self._cache.get(self._n_max_key))
         else:
             self._cache.open(self._cache_name, dbtype=db.DB_BTREE, flags=db.DB_CREATE)
             self._n_max = 0
-            self._cache.put("%d,%d" % (0, 0), str(1)) 
+            self._cache.put(dumps((0, 0)), dumps(1)) 
             
     def __call__(self, n, k):
         """
@@ -75,15 +76,15 @@ class FactorialStirling2(object):
             return 0
         if n > self._n_max:
             for i in xrange(self._n_max + 1, n + 1):
-                self._cache.put("%d,0" % i, "0")
+                self._cache.put(dumps((i, 0)), dumps(0))
                 for j in xrange(1, i):
-                    self._cache.put("%d,%d" % (i, j), str(j * (int(self._cache.get("%d,%d" % (i - 1, j))) + int(self._cache.get("%d,%d" % (i - 1, j - 1))))))
-                self._cache.put("%d,%d" % (i, i), str(i * int(self._cache.get("%d,%d" % (i - 1, i - 1)))))
+                    self._cache.put(dumps((i, j)), dumps(j * (loads(self._cache.get(dumps((i - 1, j)))) + loads(self._cache.get(dumps((i - 1, j - 1)))))))
+                self._cache.put(dumps((i, i)), dumps(i * loads(self._cache.get(dumps((i - 1, i - 1))))))
             self._n_max = n
-        return int(self._cache.get("%d,%d" % (n, k)))
+        return loads(self._cache.get(dumps((n, k))))
     
     def close(self):
-        self._cache.put(self._n_max_key, str(self._n_max))
+        self._cache.put(self._n_max_key, dumps(self._n_max))
         self._cache.close()
 
 class Binom(object):
@@ -96,26 +97,26 @@ class Binom(object):
         self._cache = db.DB()
         if isfile(self._cache_name):
             self._cache.open(self._cache_name, dbtype=db.DB_BTREE)
-            self._n_max = int(self._cache.get(self._n_max_key))
+            self._n_max = loads(self._cache.get(self._n_max_key))
         else: 
             self._cache.open(self._cache_name, dbtype=db.DB_BTREE, flags=db.DB_CREATE)
             self._n_max = 0
-            self._cache.put("%d,%d" % (0, 0), str(1)) 
+            self._cache.put(dumps((0, 0)), dumps(1)) 
     
     def __call__(self, n, k):
         if k > n or n < 0 or k < 0:
             return 0
         if n > self._n_max:
             for i in xrange(self._n_max + 1, n + 1):
-                self._cache.put("%d,0" % i, "1")
+                self._cache.put(dumps((i, 0)), dumps(1))
                 for j in xrange(1, i):
-                    self._cache.put("%d,%d" % (i, j), str(int(self._cache.get("%d,%d" % (i - 1, j))) + int(self._cache.get("%d,%d" % (i - 1, j - 1)))))
-                self._cache.put("%d,%d" % (i, i), "1")
+                    self._cache.put(dumps((i, j)), dumps(loads(self._cache.get(dumps((i - 1, j)))) + loads(self._cache.get(dumps((i - 1, j - 1))))))
+                self._cache.put(dumps((i, i)), dumps(1))
             self._n_max = n
-        return int(self._cache.get("%d,%d" % (n, k)))
+        return loads(self._cache.get(dumps((n, k))))
 
     def close(self):
-        self._cache.put(self._n_max_key, str(self._n_max))
+        self._cache.put(self._n_max_key, dumps(self._n_max))
         self._cache.close()
 
 class IntExp(object):

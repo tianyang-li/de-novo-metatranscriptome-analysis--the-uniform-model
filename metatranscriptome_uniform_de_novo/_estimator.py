@@ -23,6 +23,7 @@
 
 import bsddb3.db as db
 from os.path import isfile
+from marshal import loads, dumps
 
 import _cached_math
 import _math
