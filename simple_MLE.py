@@ -37,6 +37,10 @@ import random
 
 def print_usage():
     print >> sys.stderr, "Usage:"
+    
+def est():
+    #TODO
+    SIM_RUNS = 24000    
 
 def main(args):
     sam, contigs, read_len, kmer = None, None, None, None
