@@ -44,6 +44,20 @@ def est():
 
 def main(args):
     sam, contigs, read_len, kmer = None, None, None, None
+    try:
+        opts, args = getopt.getopt(args, 's:c:l:k:')
+    except getopt.GetoptError as err:
+        print >> sys.stderr, str(err)
+        sys.exit(1)
+    for opt, arg in opts:
+        if opt == '-s':
+            sam = arg
+        if opt == '-c':
+            contigs = arg
+        if opt == '-k':
+            kmer = int(arg)
+        if opt == '-l':
+            read_len = int(arg)
     if sam == None or contigs == None or read_len == None or kmer == None:
         print_usage()
         sys.exit(1)
