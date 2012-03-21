@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from contigs_sam_anal import read_len
 
 # This file is part of de_novo_uniform_metatranscriptome.
 # 
@@ -40,7 +41,7 @@ def print_usage():
     
 def est():
     #TODO
-    SIM_RUNS = 24000    
+    SINGLE_CONTIG_RUNS = 24000    
 
 def main(args):
     sam, contigs, read_len, kmer = None, None, None, None
@@ -61,6 +62,19 @@ def main(args):
     if sam == None or contigs == None or read_len == None or kmer == None:
         print_usage()
         sys.exit(1)
+    
+    # max difference between 2 read starting positions
+    # this assumes assembly using de Bruijn graphs
+    # overlaps are (k - 1)mers between 2 kmers
+    d_max = read_len - kmer + 1
+    
+    contigs_len = {}
+    for rec in SeqIO.parse(contigs, 'fasta'):
+        cl = len(str(rec.seq)) - read_len + 1
+        if cl > 0:
+            contigs_len[rec.id] = [len(str(rec.seq)) - read_len + 1]
+    
+    for aln in SAM_Reader(sam):
     
 if __name__ == '__main__':
     main(sys.argv[1:])
