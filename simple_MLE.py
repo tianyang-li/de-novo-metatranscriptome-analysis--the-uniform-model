@@ -72,9 +72,18 @@ def main(args):
     for rec in SeqIO.parse(contigs, 'fasta'):
         cl = len(str(rec.seq)) - read_len + 1
         if cl > 0:
-            contigs_len[rec.id] = [len(str(rec.seq)) - read_len + 1]
+            # contig length, number of reads on the contig, starting positions of reads
+            contigs_len[rec.id] = [len(str(rec.seq)) - read_len + 1, 0, len(str(rec.seq)) - read_len + 1 * [0]]
     
     for aln in SAM_Reader(sam):
+        if aln.aligned:
+            if aln.iv.chrom in contigs_len:
+                contig_rec = contigs_len[aln.iv.chrom]
+                if aln.iv.start < contig_rec[0]:
+                    contig_rec[1] += 1
+                    contig_rec[2][aln.iv.start] += 1
+    
+    # TODO: estimation
     
 if __name__ == '__main__':
     main(sys.argv[1:])
