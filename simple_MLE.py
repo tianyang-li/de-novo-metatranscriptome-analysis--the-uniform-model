@@ -39,7 +39,7 @@ import random
 def print_usage():
     print >> sys.stderr, "Usage:"
     
-def est():
+def est(c, n):
     #TODO
     SINGLE_CONTIG_RUNS = 24000    
 
