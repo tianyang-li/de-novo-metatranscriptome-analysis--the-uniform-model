@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-from contigs_sam_anal import read_len
 
 # This file is part of de_novo_uniform_metatranscriptome.
 # 
