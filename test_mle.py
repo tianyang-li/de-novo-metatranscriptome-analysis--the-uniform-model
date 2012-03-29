@@ -21,17 +21,30 @@
 # Copyright (2012) Tianyang Li
 # tmy1018@gmail.com
 
-import atexit
+import getopt
+import sys
 
-import _math
+import simple_MLE
 
-r_int_eq = _math.RestrictIntEq()
-
-def close_cache():
-    r_int_eq.close()
+def main(args):
+    L, N, runs, d_max = None, None, None, None
+    try:
+        opts, args = getopt.getopt(args, 'L:N:r:d:')
+    except getopt.GetoptError as err:
+        print >> sys.stderr, str(err)
+    for opt, arg in opts:
+        if opt == '-L':
+            L = int(arg)
+        if opt == '-N':
+            N = int(arg)
+        if opt == '-r':
+            # number of runs when generating contigs
+            runs = int(arg)    
+        if opt == '-d':
+            d_max = int(arg)
+    if L == None or N == None or runs == None or d_max == None:
+        print >> sys.stderr, "missing options"
+        sys.exit(1)
     
-atexit.register(close_cache)
-
-
 
 

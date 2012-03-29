@@ -1,4 +1,0 @@
-all:
-	rm -fv *pyc
-	
-	

@@ -29,6 +29,7 @@ Only contigs that are considered to be the only one contig from the transcript
 that it came from are in the output.
 """
 
+from __future__ import division
 import sys
 import getopt
 from HTSeq import SAM_Reader
@@ -71,8 +72,8 @@ def main(args):
     for rec in SeqIO.parse(contigs, 'fasta'):
         cl = len(str(rec.seq)) - read_len + 1
         if cl > 0:
-            # contig length, number of reads on the contig, starting positions of reads
-            contigs_len[rec.id] = [len(str(rec.seq)) - read_len + 1, 0, len(str(rec.seq)) - read_len + 1 * [0]]
+            # effective contig length, number of reads on the contig, starting positions of reads
+            contigs_len[rec.id] = [cl, 0, len(str(rec.seq)) - read_len + 1 * [0]]
     
     for aln in SAM_Reader(sam):
         if aln.aligned:
