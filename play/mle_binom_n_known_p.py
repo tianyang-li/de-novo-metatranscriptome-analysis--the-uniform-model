@@ -23,12 +23,12 @@
 
 import sys
 import getopt
-import random
+from numpy.random import binomial as binom
 
 def main(args):
-    p, n = None, None
+    p, n, runs = None, None, None
     try:
-        opts, args = getopt.getopt(args, 'p:n:')
+        opts, args = getopt.getopt(args, 'p:n:r:')
     except getopt.GetoptError as err:
         print >> sys.stderr, str(err)
     for opt, arg in opts:
@@ -36,9 +36,16 @@ def main(args):
             p = float(arg)
         if opt == '-n':
             n = int(arg)
-    if p == None or n == None:
+        if opt == '-r':
+            runs = int(arg)
+    if p == None or n == None or runs == None:
         print >> sys.stderr, "missing options"
         sys.exit(1)
+    
+    N = int(n / p)
+    for i in xrange(runs):
+        n_mc = binom(N, p)
+        print int(n_mc / p)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
