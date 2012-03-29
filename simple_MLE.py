@@ -41,7 +41,11 @@ def print_usage():
     
 def est(c, n):
     #TODO
-    SINGLE_CONTIG_RUNS = 24000    
+    """
+    find L, N that maximize
+    
+    \frac{\binom{N}{n}}{L^N} \sum_{i=0}^{L-c-1} (L-c-1-\min(i,d)-\min(L-c-1-i,d))^{N-n}
+    """
 
 def main(args):
     sam, contigs, read_len, kmer = None, None, None, None
