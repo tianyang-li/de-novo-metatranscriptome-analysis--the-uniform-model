@@ -32,6 +32,9 @@ def main(args):
         print >> sys.stderr, "missing options"
         sys.exit(1)
     
+    for L in xrange(c + 1, c + d + 2):
+        print L, n, log(L - c) - n * log(L)
+    
     for L in xrange(c + d + 2, 2 * c + d + 2):
         print L,
         N_opt, log_lh = None, None
