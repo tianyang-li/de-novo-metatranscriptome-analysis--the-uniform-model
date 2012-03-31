@@ -39,6 +39,7 @@ def main(args):
         print L,
         N_opt, log_lh = None, None
         N_min = int(n * L / (c + 1 + d + min(d, L - c - d - 1)))
+        N_min = max(N_min, n + 1)
         for N in xrange(N_min, int(n * L / (c + 1 + d)) + 1):
             lh = -N * log(L)
             for n_comb in xrange(N - n + 1, N + 1):

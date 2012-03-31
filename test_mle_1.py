@@ -23,13 +23,14 @@
 
 import getopt
 import sys
+import random
 
-import simple_MLE
+import mle_1
 
 def main(args):
-    L, N, runs, d_max = None, None, None, None
+    L, N, runs, d_max, bound = None, None, None, None, None
     try:
-        opts, args = getopt.getopt(args, 'L:N:r:d:')
+        opts, args = getopt.getopt(args, 'L:N:r:d:b:')
     except getopt.GetoptError as err:
         print >> sys.stderr, str(err)
     for opt, arg in opts:
@@ -42,9 +43,18 @@ def main(args):
             runs = int(arg)    
         if opt == '-d':
             d_max = int(arg)
-    if L == None or N == None or runs == None or d_max == None:
+        if opt == '-b':
+            bound = float(arg)
+    if L == None or N == None or runs == None or d_max == None or bound == None:
         print >> sys.stderr, "missing options"
         sys.exit(1)
     
+    random.seed()
+    
+    for r in xrange(runs):
+        start_pos = L * [0]
+        for each_read in xrange(N):
+            start_pos[random.randint(0, L - 1)] += 1
+        
 
 

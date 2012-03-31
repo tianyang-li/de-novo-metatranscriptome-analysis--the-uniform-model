@@ -35,17 +35,48 @@ import getopt
 from HTSeq import SAM_Reader
 from Bio import SeqIO
 import random
+from math import log
 
 def print_usage():
     print >> sys.stderr, "Usage:"
     
-def est(c, n):
+def est(c, n, d):
     #TODO
     """
     find L, N that maximize
     
     \frac{\binom{N}{n}}{L^N} \sum_{i=0}^{L-c-1} (L-c-1-\min(i,d)-\min(L-c-1-i,d))^{N-n}
+    
+    when c+1 \leq L leq 2c+2+d, assume that n \geq 3
     """
+    N_opt = n 
+    L_opt = int(n / (n - 1) * c)
+    lh_opt = log(L_opt - c) - N_opt * log(L_opt)
+    if log(L_opt + 1 - c) - N_opt * log(L_opt + 1) > lh_opt:
+        lh_opt = log(L_opt + 1 - c) - N_opt * log(L_opt + 1)
+        L_opt += 1
+    for L in xrange(c + d + 2, 2 * c + d + 2):
+        N_min = int(n * L / (c + 1 + d + min(d, L - c - d - 1)))
+        N_min = max(n + 1, N_min)
+        for N in xrange(N_min, int(n * L / (c + 1 + d)) + 1):
+            lh = -N * log(L)
+            for n_comb in xrange(N - n + 1, N + 1):
+                lh += log(n_comb)
+            tmp_cnt = 0
+            pos_pos = L - c - 2 * d - 1
+            if pos_pos > 0:
+                tmp_cnt += (pos_pos + 1) * ((pos_pos) ** (N - n))
+            for d_tmp in xrange(d):
+                pos_pos = L - c - d - d_tmp - 1
+                if pos_pos > 0:
+                    tmp_cnt += (2 * ((pos_pos) ** (N - n)))
+            lh += log(tmp_cnt)
+            if lh > lh_opt:
+                lh_opt = lh
+                N_opt = N
+                L_opt = L
+    return L_opt, N_opt, lh_opt
+    
 
 def main(args):
     sam, contigs, read_len, kmer = None, None, None, None
