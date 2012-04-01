@@ -66,7 +66,7 @@ def main(args):
                         if n >= 3:
                             L_est, N_est, lh = est(c, n, d_max)
                             if c / L_est >= bound and n / N_est >= bound:
-                                print L_est, N_est
+                                print c, n, L_est, N_est
                             c, n = 0, start_pos[read_pos]
                     else:
                         c += read_pos - prev_pos
@@ -78,7 +78,7 @@ def main(args):
             if n >= 3:
                 L_est, N_est, lh = est(c, n, d_max)
                 if c / L_est >= bound and n / N_est >= bound:
-                    print L_est, N_est
+                    print c, n, L_est, N_est
         
 if __name__ == '__main__':
     main(sys.argv[1:])
