@@ -21,11 +21,24 @@
 # Copyright (2012) Tianyang Li
 # tmy1018@gmail.com
 
+from __future__ import division
 import getopt
-import random
 import sys
+from math import log
 
 from random_contig_gen import rand_cont
+
+def single_contig_mle(c, n):
+    L_est = int(n * c / (n - 1))
+    if L_est <= c + 1:
+        L_est = c + 1
+    else:
+        if log(L_est + 1 - c) - n * log(L_est + 1) > log(L_est - c) - n * log(L_est):
+            L_est += 1
+    return L_est, n
+
+def do_not_think_contig_MVUE(c, n):
+    return int((n + 1) * (c + 1) / (n - 1)), n
 
 def main(args):
     L, N, d, runs = None, None, None, None
@@ -46,6 +59,12 @@ def main(args):
     if L == None or N == None or d == None or runs == None:
         print >> sys.stderr, "missing options"
         sys.exit(1)
+    
+    for r in xrange(runs):
+        sim_res = rand_cont(L, N, d)
+        for c, n in sim_res[1]:
+            L_est, N_est = do_not_think_contig_MVUE(c, n)
+            print c, n, L_est, N_est
     
 if __name__ == '__main__':
     main(sys.argv[1:])    
