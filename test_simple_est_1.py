@@ -37,7 +37,7 @@ def single_contig_mle(c, n):
             L_est += 1
     return L_est, n
 
-def do_not_think_contig_MVUE(c, n):
+def do_not_think_contig_MVUE_approx(c, n):
     return int((n + 1) * (c + 1) / (n - 1)), n
 
 def main(args):
@@ -63,8 +63,9 @@ def main(args):
     for r in xrange(runs):
         sim_res = rand_cont(L, N, d)
         for c, n in sim_res[1]:
-            L_est, N_est = do_not_think_contig_MVUE(c, n)
-            print c, n, L_est, N_est
+            if n >= 3:
+                L_est, N_est = single_contig_mle(c, n)
+                print c, n, L_est, N_est
     
 if __name__ == '__main__':
     main(sys.argv[1:])    
