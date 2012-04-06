@@ -67,7 +67,7 @@ def main(args):
     for run in xrange(r):
         sim_res = rand_cont(L, N, d)
         for c, n in sim_res[1]:
-            if c / approx_contig(c, n, d) < a:
+            if n >= 3 and c / approx_contig(c, n, d) < a:
                 print int(c * (n + 1) / (n - 1)), n
     
 if __name__ == '__main__':
