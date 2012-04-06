@@ -24,53 +24,29 @@
 from __future__ import division
 import getopt
 import sys
-import random
-from math import exp
-from numpy import expm1
-
-from random_contig_gen import rand_cont
-
-def approx_contig(c, n, d):
-    """
-    approximate "random" contig length given the observed coverage
-    
-    use an underestimate for the coverage
-    """
-    lam = n / (c + 1 + 2 * d)
-    c_exp = exp(lam) * (expm1(d * lam)) / (expm1(lam)) - d
-    return c_exp
+from math import log
+from scipy.misc import comb
 
 def main(args):
-    L, N, d, r, a = None, None, None, None, None
+    a, n = None, None
     try:
-        opts, args = getopt.getopt(args, 'L:N:d:r:a:')
+        opts, args = getopt.getopt(args, 'a:n:')
     except getopt.GetoptError as err:
         print >> sys.stderr, str(err)
-        sys.exit(1)
     for opt, arg in opts:
-        if opt == '-L':
-            L = int(arg)
-        if opt == '-N':
-            N = int(arg)
-        if opt == '-d':
-            d = int(arg)
-        if opt == '-r':
-            r = int(arg)
         if opt == '-a':
-            a = float(arg)
-    if L == None or N == None or d == None or r == None or a == None:
+            a = int(arg)
+        if opt == '-n':
+            n = int(arg)
+    if a == None or n == None :
         print >> sys.stderr, "missing options"
         sys.exit(1)
-    
-    random.seed()
-    
-    for run in xrange(r):
-        sim_res = rand_cont(L, N, d)
-        for c, n in sim_res[1]:
-            if n < N and n >= 3 and c / approx_contig(c, n, d) < a:
-                print c, n, int(c * (n + 1) / (n - 1)), n
-    
+    for L in xrange(a + 1, 2 * (a + 1) + 1):
+        N = int(n * L / a)
+        print L, N, log(comb(N, n, exact=1)) + log(L - a) - N * log(L)
+
 if __name__ == '__main__':
     main(sys.argv[1:])
+
 
 
