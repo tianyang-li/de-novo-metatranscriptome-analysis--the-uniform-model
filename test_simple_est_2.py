@@ -36,7 +36,7 @@ def approx_contig(c, n, d):
     
     use an underestimate for the coverage
     """
-    lam = n / (c + 1 + 2 * d)
+    lam = n / (c + 1)
     c_exp = exp(lam) * (expm1(d * lam)) / (expm1(lam)) - d
     return c_exp
 
