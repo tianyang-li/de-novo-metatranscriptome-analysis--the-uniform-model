@@ -31,11 +31,17 @@ def main(args):
     if ids == None or args == None:
         print >> sys.stderr, "missing options or arguments"
         sys.exit(1)
+    id_set = set([])
+    with open(ids, 'r') as fids:
+        for line in fids:
+            id_set.add(line.strip())
     for fin in args:
         with open(fin, 'r') as b6:
             for line in b6:
                 entries = line.strip().split("\t")
-                print entries[0].split(" ")[0], entries[1]
+                contig_id = entries[0].split(" ")[0]
+                if contig_id in id_set:
+                    print contig_id, entries[1]
     
 if __name__ == '__main__':
     main(sys.argv[1:])
