@@ -31,17 +31,24 @@ def main(args):
     if ids == None or args == None:
         print >> sys.stderr, "missing options or arguments"
         sys.exit(1)
-    id_set = set([])
+    id_set = {}
     with open(ids, 'r') as fids:
         for line in fids:
-            id_set.add(line.strip())
+            id_set[line.strip()] = []
     for fin in args:
         with open(fin, 'r') as b6:
             for line in b6:
                 entries = line.strip().split("\t")
                 contig_id = entries[0].split(" ")[0]
                 if contig_id in id_set:
-                    print contig_id, entries[1]
+                    id_set[contig_id].append(entries[1].split(" ")[0])
+    for contig_id, mapped_seqs in id_set.iteritems():
+        if len(mapped_seqs) != 0:
+            print contig_id,
+            for mapped_seq in mapped_seqs:
+                print mapped_seq,
+            print 
+        
     
 if __name__ == '__main__':
     main(sys.argv[1:])
