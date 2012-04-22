@@ -22,11 +22,21 @@ from xml.etree.ElementTree import ElementTree
 def main(args):
     run_xml = ElementTree()
     run_xml.parse(args[0])
+    run_attrib = []
     for elem in run_xml.getiterator():  # change this when using Python 2.7
         if elem.tag == "RUN":
-            print elem.attrib["accession"],
+            if len(run_attrib) == 3:
+                for ra in run_attrib:
+                    print ra,
+                print 
+            run_attrib = []
+            run_attrib.append(elem.attrib["accession"])
         if elem.tag == "EXPERIMENT_REF":
-            print elem.attrib["accession"]
+            run_attrib.append(elem.attrib["accession"])
+        if elem.tag == "VALUE":
+            if "[tagged" in elem.text:
+                run_attrib.append(elem.text.split(" ")[0])
+            
     
 
 if __name__ == '__main__':
