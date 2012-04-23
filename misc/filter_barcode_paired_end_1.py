@@ -36,7 +36,7 @@ def main(args):
         with open("%s-noN_2.fastq" % args[1][:-8], 'w') as fout2:
             for barc, seq1, seq2 in izip(SeqIO.parse(bc_f, 'fastq'), SeqIO.parse(args[0], 'fastq'), SeqIO.parse(args[1], 'fastq')):
                 all_reads += 1
-                if barc.upper() == barcode:
+                if str(barc.seq).upper() == barcode:
                     if "n" not in str(seq1.seq) and "N" not in str(seq1.seq):
                         if "n" not in str(seq2.seq) and "N" not in str(seq2.seq):
                             kept += 1
