@@ -32,13 +32,16 @@ def main(args):
             bc_f = arg
     all_reads = 0
     kept = 0
-    with open("%s-noN.fastq" % args[0][:-6], 'w') as fout:
-        for barc, seq in izip(SeqIO.parse(bc_f, 'fastq'), SeqIO.parse(args[0], 'fastq')):
-            all_reads += 1
-            if str(barc.seq).upper() == barcode:
-                if "n" not in str(seq.seq) and "N" not in str(seq.seq):
-                    fout.write(barc.format('fastq'))
-                    kept += 1
+    with open("%s-noN_1.fastq" % args[0][:-8], 'w') as fout1:
+        with open("%s-noN_2.fastq" % args[1][:-8], 'w') as fout2:
+            for barc, seq1, seq2 in izip(SeqIO.parse(bc_f, 'fastq'), SeqIO.parse(args[0], 'fastq'), SeqIO.parse(args[1], 'fastq')):
+                all_reads += 1
+                if barc.upper() == barcode:
+                    if "n" not in str(seq1.seq) and "N" not in str(seq1.seq):
+                        if "n" not in str(seq2.seq) and "N" not in str(seq2.seq):
+                            kept += 1
+                            fout1.write(seq1.format('fastq'))
+                            fout2.write(seq2.format('fastq'))
     print >> sys.stderr, "%d of %d kept" % (kept, all_reads)
 
 if __name__ == '__main__':
