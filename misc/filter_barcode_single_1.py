@@ -15,34 +15,24 @@
 #
 #  You should have received a copy of the GNU General Public License
 
-import sys
 import getopt
- 
+import sys
+from itertools import izip
+
+from Bio import SeqIO
+
 def main(args):
-    info = None
-    try:
-        opts, args = getopt.getopt(args, 'i:')
-    except getopt.GetoptError as err:
-        print >> sys.stderr, str(err)
-        sys.exit(1)
+    barcode = None
+    bc_f = None
+    opts, args = getopt.getopt(args, 'b:B:')
     for opt, arg in opts:
-        if opt == '-i':
-            info = arg
-    if info == None:
-        print >> sys.stderr, "missin opts"
-        sys.exit(1)
-    srxs = {}
-    with open(info, 'r') as fin:
-        for line in fin:
-            entries = line.strip().split(" ")
-            if entries[1] in srxs:
-                srxs[entries[1]].append(entries[0])
-            else:
-                srxs[entries[1]] = [entries[0]]
-    for srx in args:
-        for srr in  srxs[srx]:
-            print srr,
-    
+        if opt == '-b':
+            barcode = arg.upper()
+        if opt == '-B':
+            bc_f = arg
+    all_reads = 0
+    for barc, seq in izip(SeqIO.parse(bc_f, 'fastq'), SeqIO.parse(args[0], 'fastq')):
+        all_reads += 1
+
 if __name__ == '__main__':
     main(sys.argv[1:])
-
