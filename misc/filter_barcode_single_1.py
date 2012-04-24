@@ -37,7 +37,7 @@ def main(args):
             all_reads += 1
             if str(barc.seq).upper() == barcode:
                 if "n" not in str(seq.seq) and "N" not in str(seq.seq):
-                    fout.write(barc.format('fastq'))
+                    fout.write(seq.format('fastq'))
                     kept += 1
     print >> sys.stderr, "%d of %d kept" % (kept, all_reads)
 
