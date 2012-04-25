@@ -19,6 +19,12 @@ import sys
 import getopt
 
 def frag_ml(l, frag_lens):
+    """
+    max of 
+        \log(L - l) / N - \log(L - f)
+    is at 
+        \frac{N}{N - 1} L - f / (N - 1)
+    """
     frag_str = "(L - %d)%s" % (frag_lens[0], "".join(map(lambda frag: " * (L - %d)" % frag, frag_lens[1:])))
     print >> sys.stderr, "(L - %d) / (%s)" % (l, frag_str)
 
@@ -36,8 +42,7 @@ def main(args):
     if l == None or len(args) == 0:
         print >> sys.stderr, "missing input"
         sys.exit(1)
-    print frag_ml(l, map(lambda arg: int(arg), args))
-    
+    print frag_ml(l, map(lambda arg: int(arg), args)) 
 
 if __name__ == '__main__':
     main(sys.argv[1:])
