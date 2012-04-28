@@ -19,10 +19,22 @@
 calculate estimated length
 """
 
+from __future__ import division
 import getopt
 import sys
 from HTSeq import SAM_Reader
 from Bio import SeqIO
+from math import log
+
+def single_est_len(l, n):
+    
+
+class SingleOneContig(object):
+    def __init__(self, d_max):
+        SIM_RUNS = 24000
+    
+    def __call__(self, l, n):
+        
 
 def main(args):
     sam_file, assembled_file = None, None
@@ -44,6 +56,21 @@ def main(args):
     if sam_file == None or assembled_file == None or assembly_kmer == None or read_len == None:
         print >> sys.stderr, "missing input"
         sys.exit(1)
+    contigs = {}
+    for rec in SeqIO.parse(assembled_file, 'fasta'):
+        # length, read_count
+        contigs[rec.name] = [len(rec.seq), 0]
+    for align in SAM_Reader(sam_file):
+        if align.aligned:
+            if align.iv.chrom in contigs:
+                contigs[align.iv.chrom][1] += 1
+    d_max = read_len - assembly_kmer + 1  # max difference between 2 read starting positions
+    keep_contig = SingleOneContig(d_max)
+    for contig, contig_stat in contigs.iteritems():
+        if contig_stat[1] != 0:
+            if keep_contig(contig_stat[0], contig_stat[1]):
+                # name, length, read_count, est_len
+                print contig, contig_stat[0], contig_stat[1], single_est_len(contig_stat[0], contig_stat[1])
     
 if __name__ == '__main__':
     main(sys.argv[1:])    
