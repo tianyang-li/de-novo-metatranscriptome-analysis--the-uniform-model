@@ -16,7 +16,7 @@
 #  You should have received a copy of the GNU General Public License
 
 """
-
+calculate estimated length
 """
 
 import getopt
@@ -24,9 +24,26 @@ import sys
 from HTSeq import SAM_Reader
 from Bio import SeqIO
 
-def main(aregs):
+def main(args):
     sam_file, assembled_file = None, None
-    read_len, assemble_kmer = None, None
+    read_len, assembly_kmer = None, None
+    try:
+        opts, args = getopt.getopt(args, 'a:s:l:k:')
+    except getopt.GetoptError as err:
+        print >> sys.stderr, str(err)
+        sys.exit(1)
+    for opt, arg in opts:
+        if opt == '-a':
+            assembled_file = arg
+        if opt == '-s':
+            sam_file = arg
+        if opt == '-l':
+            read_len = int(arg)
+        if opt == '-k':
+            assembly_kmer = int(arg)
+    if sam_file == None or assembled_file == None or assembly_kmer == None or read_len == None:
+        print >> sys.stderr, "missing input"
+        sys.exit(1)
     
 if __name__ == '__main__':
     main(sys.argv[1:])    
