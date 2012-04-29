@@ -42,7 +42,7 @@ def main(args):
     for fin in args:
         for rec in SeqIO.parse(fin, fmt):
             rec.id = "%s%s%s" % (prefix, rec.id, suffix)
-            print rec.format(fmt)
+            print rec.format(fmt),
 
 if __name__ == '__main__':
     main(sys.argv[1:])
