@@ -26,12 +26,13 @@ from HTSeq import SAM_Reader
 from Bio import SeqIO
 from math import log
 
-def single_est_len(l, n):
+def single_est_len(l, n, read_len):
     
 
 class SingleOneContig(object):
     def __init__(self, d_max):
         SIM_RUNS = 24000
+        MAX_LEN = 6000
     
     def __call__(self, l, n):
         
