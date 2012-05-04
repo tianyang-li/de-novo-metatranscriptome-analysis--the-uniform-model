@@ -46,10 +46,11 @@ def find_one_contig_N(prob_precision, prob_one_contig, L, d_max, read_len):
                 self.N = N1
             prev = None
             for cur in xrange(eff_len):
-                if prev != None:
-                    if cur - prev > d_max:
-                        return False
-                prev = cur
+                if self.nuc_seq[cur] != 0:
+                    if prev != None:
+                        if cur - prev > d_max:
+                            return False
+                    prev = cur
             return True
         
         def debug_it(self):
