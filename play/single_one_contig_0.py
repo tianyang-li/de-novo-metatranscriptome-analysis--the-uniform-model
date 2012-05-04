@@ -59,7 +59,38 @@ def find_one_contig_N(prob_precision, prob_one_contig, L, d_max, read_len):
                 return False
             return True
     
-    return N
+    sims = []
+    for _ in xrange(sim_runs):
+        sims.append(SingleOneContig())
+    
+    def calc_prob(cur_N):
+        one_contig = 0
+        for sim in sims:
+            if sim.one_contig(cur_N):
+                one_contig += 1
+        return one_contig / sim_runs
+    
+    cur_prob = calc_prob(N)
+    
+    if abs(cur_prob - prob_one_contig) > prob_precision:
+        N_upper, N_lower = None, None
+        prob_upper, prob_lower = None, None
+        if cur_prob > prob_one_contig:
+            N_upper = N
+            prob_upper = cur_prob
+            N_lower = N * CHANGE_RATIO
+            prob_lower = calc_prob(N_lower)
+        else:
+            N_upper = N / CHANGE_RATIO
+            prob_upper = calc_prob(N_upper)
+            N_lower = N
+            prob_lower = cur_prob
+        cur_prob = (prob_upper + prob_lower) / 2
+        while abs(cur_prob - prob_one_contig) > prob_precision:
+            
+        return int((N_upper + N_lower) / 2)
+    else:
+        return N
 
 def main(args):
     L, d_max, read_len = None, None, None
