@@ -75,18 +75,41 @@ def find_one_contig_N(prob_precision, prob_one_contig, L, d_max, read_len):
     if abs(cur_prob - prob_one_contig) > prob_precision:
         N_upper, N_lower = None, None
         prob_upper, prob_lower = None, None
+        
         if cur_prob > prob_one_contig:
             N_upper = N
             prob_upper = cur_prob
-            N_lower = N * CHANGE_RATIO
+            N_lower = int(N * CHANGE_RATIO)
             prob_lower = calc_prob(N_lower)
+            
+            while prob_lower > prob_one_contig:
+                N_upper = N_lower
+                prob_upper = prob_lower
+                N_lower = int(CHANGE_RATIO * N_lower)
+                prob_lower = calc_prob(N_lower)
         else:
             N_upper = N / CHANGE_RATIO
             prob_upper = calc_prob(N_upper)
             N_lower = N
             prob_lower = cur_prob
-        cur_prob = (prob_upper + prob_lower) / 2
-        while abs(cur_prob - prob_one_contig) > prob_precision:
+        
+            while prob_upper < prob_one_contig:
+                N_lower = N_upper
+                prob_lower = prob_upper
+                N_upper = int(N_upper / CHANGE_RATIO)
+                prob_upper = calc_prob(N_upper)
+                
+        while ((abs(prob_upper - prob_one_contig) > prob_precision 
+                or abs(prob_lower - prob_one_contig) > prob_precision)
+               and N_upper - N_lower > 1):
+            N_tmp = int((N_upper + N_lower) / 2)
+            prob_tmp = calc_prob(N_tmp)
+            if prob_tmp < prob_one_contig:
+                N_lower = N_tmp
+                prob_lower = prob_tmp
+            else:
+                N_upper = N_tmp
+                prob_upper = prob_tmp
             
         return int((N_upper + N_lower) / 2)
     else:
