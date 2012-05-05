@@ -98,7 +98,7 @@ def find_one_contig_N(prob_precision, prob_one_contig, L, d_max, read_len):
                 prob_lower = prob_upper
                 N_upper = int(N_upper / CHANGE_RATIO)
                 prob_upper = calc_prob(N_upper)
-                
+        
         while ((abs(prob_upper - prob_one_contig) > prob_precision 
                 or abs(prob_lower - prob_one_contig) > prob_precision)
                and N_upper - N_lower > 1):
