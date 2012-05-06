@@ -32,7 +32,24 @@ from math import log
 from single_one_contig_0 import find_one_contig_N
 
 def single_est_len(l, n, read_len):
+    # max of 
+    # (L - l + 1) / (L - r + 1)^N 
+    # (continuous case)
+    # occurs at
+    # (N * (l - 1) - (r - 1)) / (N - 1)
+    L = int((n * (l - 1) - read_len + 1) / (n - 1))
     
+    if L <= l:
+        return l
+    
+    lik = log(L - l + 1) - n * log(L - read_len + 1) 
+    
+    L1 = L + 1
+    lik1 = log(L1 - l + 1) - n * log(L - read_len + 1)
+    
+    if lik1 > lik:
+        return L1
+    return L
 
 class SingleOneContig(object):
     def __init__(self, d_max, read_len):
@@ -79,13 +96,14 @@ def main(args):
                 contigs[align.iv.chrom][1] += 1
                 
     d_max = read_len - assembly_kmer + 1  # max difference between 2 read starting positions
-    keep_contig = SingleOneContig(d_max)
+    
+    keep_contig = SingleOneContig(d_max, read_len)
     
     for contig, contig_stat in contigs.iteritems():
         if contig_stat[1] != 0:
             if keep_contig(contig_stat[0], contig_stat[1]):
                 # name, length, read_count, est_len
-                print contig, contig_stat[0], contig_stat[1], single_est_len(contig_stat[0], contig_stat[1])
+                print contig, contig_stat[0], contig_stat[1], single_est_len(contig_stat[0], contig_stat[1], read_len)
     
 if __name__ == '__main__':
     main(sys.argv[1:])    
