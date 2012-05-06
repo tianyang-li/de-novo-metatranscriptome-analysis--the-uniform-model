@@ -20,11 +20,35 @@ from __future__ import division
 import getopt
 import sys
 
+from Bio import SeqIO
+
 def main(args):
     len_est = None
-    if not len_est:
+    try:
+        opts, args = getopt.getopt(args, 'i:')
+    except getopt.GetoptError as err:
+        print >> sys.stderr, str(err)
+        sys.exit(1)
+    for opt, arg in opts:
+        if opt == '-i':
+            len_est = arg
+    if not len_est or not args:
         print >> sys.stderr, "missing"
         sys.exit(1)
+    
+    embls = []
+    for arg in args:
+        embls.extend(list(SeqIO.parse(arg, 'embl')))
+    
+    features = {}
+    for embl in embls:
+        embl_features = []
+        type_source = 'source'  # don't take annotations of the whole sequence
+        for feat in embl.features:
+            if feat.type != type_source:
+                embl_features.append((feat.location.start.position,
+                                      feat.location.end.position, feat.strand))
+        features[embl.id] = embl_features
 
 if __name__ == '__main__':
     main(sys.argv[1:])
