@@ -37,6 +37,12 @@ def interval_overlap(iv1, iv2):
         return True
     return True
 
+def interval_search(features, iv):
+    upper = len(features) - 1
+    lower = 0
+    
+        
+
 def main(args):
     len_est = None
     psl_align = None
@@ -87,6 +93,11 @@ def main(args):
     
     with open(psl_align, 'r') as psl:
         reader = csv.reader(psl, delimiter="\t")
+        for row in reader:
+            if row[9] in len_ests:
+                if int(row[1]) / int(row[10]) < 1 - match_percent:
+                    t_name = row[13].split("|")[-1]
+                    
 
 if __name__ == '__main__':
     main(sys.argv[1:])
