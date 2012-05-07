@@ -139,7 +139,9 @@ def main(args):
                     q_iv = Interval(int(row[15]), int(row[16]))
                     ref_iv = interval_search(features[t_name], q_iv)
                     if ref_iv:
-                        print ref_iv.high - ref_iv.low
+                        true_len = ref_iv.high - ref_iv.low
+                        est_len = len_ests[row[9]].len_est
+                        print row[9], est_len, true_len, t_name, ref_iv.low, ref_iv.high
 
 if __name__ == '__main__':
     main(sys.argv[1:])
