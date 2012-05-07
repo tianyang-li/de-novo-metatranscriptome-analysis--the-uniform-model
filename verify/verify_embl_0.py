@@ -19,20 +19,38 @@ from __future__ import division
 
 import getopt
 import sys
+import csv
 
 from Bio import SeqIO
 
+def interval_cmp(iv1, iv2):
+    # iv is a tuple
+    # (start, end, strand)
+    if iv1[0] == iv2[0]:
+        return iv1[1] - iv2[1]
+    return iv1[0] - iv2[0]
+
+def interval_overlap(iv1, iv2):
+    if iv1[0] > iv2[1]:
+        return False
+    if iv1[1] < iv2[0]:
+        return True
+    return True
+
 def main(args):
     len_est = None
+    psl_align = None
     try:
-        opts, args = getopt.getopt(args, 'i:')
+        opts, args = getopt.getopt(args, 'l:a:')
     except getopt.GetoptError as err:
         print >> sys.stderr, str(err)
         sys.exit(1)
     for opt, arg in opts:
-        if opt == '-i':
+        if opt == '-l':
             len_est = arg
-    if not len_est or not args:
+        if opt == '-a':
+            psl_align = arg
+    if not len_est or not args or not psl_align:
         print >> sys.stderr, "missing"
         sys.exit(1)
     
@@ -46,9 +64,26 @@ def main(args):
         type_source = 'source'  # don't take annotations of the whole sequence
         for feat in embl.features:
             if feat.type != type_source:
-                embl_features.append((feat.location.start.position,
-                                      feat.location.end.position, feat.strand))
+                if (feat.location.start.position 
+                    < feat.location.end.position):
+                    embl_features.append((feat.location.start.position,
+                                          feat.location.end.position, feat.strand))
+                else:
+                    embl_features.append((feat.location.end.position,
+                                          feat.location.start.position, feat.strand))
         features[embl.id] = embl_features
+    
+    for embl in features:
+        features[embl] = sorted(set(features[embl]), cmp=interval_cmp)
+    
+    len_ests = {}
+    with open(len_est, 'r') as le:
+        reader = csv.reader(le, delimiter=" ")
+        for row in reader:
+            len_ests[row[0]] = [int(row[1])]
+    
+    with open(psl_align, 'r') as psl:
+        reader = csv.reader(psl, delimiter="\t")
 
 if __name__ == '__main__':
     main(sys.argv[1:])
