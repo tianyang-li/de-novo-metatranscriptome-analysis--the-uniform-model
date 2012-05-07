@@ -40,8 +40,9 @@ def interval_overlap(iv1, iv2):
 def main(args):
     len_est = None
     psl_align = None
+    match_percent = 0.9
     try:
-        opts, args = getopt.getopt(args, 'l:a:')
+        opts, args = getopt.getopt(args, 'l:a:m:')
     except getopt.GetoptError as err:
         print >> sys.stderr, str(err)
         sys.exit(1)
@@ -50,6 +51,8 @@ def main(args):
             len_est = arg
         if opt == '-a':
             psl_align = arg
+        if opt == '-m':
+            match_percent = float(arg)
     if not len_est or not args or not psl_align:
         print >> sys.stderr, "missing"
         sys.exit(1)
@@ -80,7 +83,7 @@ def main(args):
     with open(len_est, 'r') as le:
         reader = csv.reader(le, delimiter=" ")
         for row in reader:
-            len_ests[row[0]] = [int(row[1])]
+            len_ests[row[0]] = [int(row[3])]
     
     with open(psl_align, 'r') as psl:
         reader = csv.reader(psl, delimiter="\t")
