@@ -23,25 +23,43 @@ import csv
 
 from Bio import SeqIO
 
+class Interval(object):
+    def __init__(self, low, high, strand):
+        self.low = low
+        self.high = high
+        self.strand = strand
+        self.max = None
+
+class VerifyLenEst(object):
+    def __init__(self, len_est):
+        self.len_est = len_est
+        self.len_annotation = None
+
 def interval_cmp(iv1, iv2):
     # iv is a tuple
     # (start, end, strand)
-    if iv1[0] == iv2[0]:
-        return iv1[1] - iv2[1]
-    return iv1[0] - iv2[0]
+    if iv1.low == iv2.low:
+        return iv1.high - iv2.high
+    return iv1.low - iv2.low
 
 def interval_overlap(iv1, iv2):
-    if iv1[0] > iv2[1]:
+    if iv1.low > iv2.high:
         return False
-    if iv1[1] < iv2[0]:
-        return True
+    if iv1.high < iv2.low:
+        return False
     return True
 
 def interval_search(features, iv):
-    upper = len(features) - 1
+    upper = len(features) 
     lower = 0
+    x = int((upper - 1 + lower) / 2)
+    while (upper > lower + 1 
+           and not interval_overlap(features[x], iv)):
+        x_left = int((lower + x - 1) / 2)
+        x_right = int((x + upper) / 2)
+
+def feature_intervals_max(features):
     
-        
 
 def main(args):
     len_est = None
@@ -75,21 +93,22 @@ def main(args):
             if feat.type != type_source:
                 if (feat.location.start.position 
                     < feat.location.end.position):
-                    embl_features.append((feat.location.start.position,
+                    embl_features.append(Interval(feat.location.start.position,
                                           feat.location.end.position, feat.strand))
                 else:
-                    embl_features.append((feat.location.end.position,
+                    embl_features.append(Interval(feat.location.end.position,
                                           feat.location.start.position, feat.strand))
         features[embl.id] = embl_features
     
     for embl in features:
         features[embl] = sorted(set(features[embl]), cmp=interval_cmp)
+        feature_intervals_max(features[embl])
     
     len_ests = {}
     with open(len_est, 'r') as le:
         reader = csv.reader(le, delimiter=" ")
         for row in reader:
-            len_ests[row[0]] = [int(row[3])]
+            len_ests[row[0]] = VerifyLenEst(int(row[3]))
     
     with open(psl_align, 'r') as psl:
         reader = csv.reader(psl, delimiter="\t")
