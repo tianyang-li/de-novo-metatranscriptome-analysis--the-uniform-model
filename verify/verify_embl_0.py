@@ -24,11 +24,11 @@ import csv
 from Bio import SeqIO
 
 class Interval(object):
-    def __init__(self, low, high, strand):
+    def __init__(self, low, high, strand=0):
         self.low = low
         self.high = high
         self.strand = strand
-        self.max = None
+        self.max = high
 
 class VerifyLenEst(object):
     def __init__(self, len_est):
@@ -56,10 +56,30 @@ def interval_search(features, iv):
     while (upper > lower + 1 
            and not interval_overlap(features[x], iv)):
         x_left = int((lower + x - 1) / 2)
-        x_right = int((x + upper) / 2)
+        if x >= lower + 1 and features[x_left].max >= iv.low:
+            upper = x
+            x = x_left
+        else:
+            lower = x + 1
+            x = int((x + upper) / 2)
+    if interval_overlap(iv, features[x]):
+        return features[x]
+    return None
 
 def feature_intervals_max(features):
-    
+    def set_max(l, h):
+        x = int((l + h - 1) / 2)
+        if x >= l + 1:
+            tmp = set_max(l, x)
+            if tmp > features[x].max:
+                features[x].max = tmp
+        if x + 2 <= h:
+            tmp = set_max(x + 1, h)
+            if tmp > features[x].max:
+                features[x].max = tmp
+        return features[x].max
+        
+    set_max(0, len(features))
 
 def main(args):
     len_est = None
@@ -116,7 +136,10 @@ def main(args):
             if row[9] in len_ests:
                 if int(row[1]) / int(row[10]) < 1 - match_percent:
                     t_name = row[13].split("|")[-1]
-                    
+                    q_iv = Interval(int(row[15]), int(row[16]))
+                    ref_iv = interval_search(features[t_name], q_iv)
+                    if ref_iv:
+                        print ref_iv.high - ref_iv.low
 
 if __name__ == '__main__':
     main(sys.argv[1:])
