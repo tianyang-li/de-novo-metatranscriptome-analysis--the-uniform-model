@@ -31,14 +31,16 @@ from verify_embl_0 import get_embl_feature_intervals, interval_search
 def main(args):
     sam_file = None
     embl_file = None
-    est_lower = None
-    est_upper = None
+    est_lower_ratio = None
+    est_upper_ratio = None
+    est_lower_bp = None
+    est_upper_bp = None
     blat_blast8_file = None
     try:
         opts, args = getopt.getopt(args, '',
-                                   ["--sam=", "--embl=", "--contigs",
-                                    "--est-lower=", "--est-upper="
-                                    , "--blat-blast8"])
+                                   ["sam=", "embl=", "contigs",
+                                    "est-lower=", "est-upper="
+                                    , "blat-blast8"])
     except getopt.GetoptError as err:
         print >> sys.stderr, str(err)
         sys.exit(1)
@@ -49,9 +51,11 @@ def main(args):
         if opt == "--embl":
             embl_file = arg
         if opt == "--est-lower":
-            est_lower = float(arg)
+            est_lower_bp = int(arg.split(",")[1])
+            est_lower_ratio = float(arg.split(",")[0])
         if opt == "--est-upper":
-            est_upper = float(arg)
+            est_upper_bp = int(arg.split(",")[1])
+            est_upper_ratio = float(arg.split(",")[0])
         if opt == "--blat-blast8":
             # 0 Query id
             # 1 Subject id
@@ -67,7 +71,8 @@ def main(args):
             # 11 bit score
             blat_blast8_file = arg
     if (not sam_file or not embl_file
-        or not est_lower or not est_upper
+        or not est_lower_ratio or not est_upper_ratio
+        or not est_lower_bp or not est_upper_bp
         or not blat_blast8_file):
         print >> sys.stderr, "missing"
         sys.exit(1)
