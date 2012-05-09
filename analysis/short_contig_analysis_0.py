@@ -20,6 +20,8 @@ from __future__ import division
 import getopt
 import sys
 
+import rpy2
+
 from Bio import SeqIO
 from HTSeq import SAM_Reader
 
@@ -70,6 +72,7 @@ def main(args):
         print >> sys.stderr, "missing"
         sys.exit(1)
     
+    _, features = get_embl_feature_intervals([embl_file])
     
 
 if __name__ == '__main__':
