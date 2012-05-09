@@ -23,6 +23,8 @@ import sys
 from Bio import SeqIO
 from HTSeq import SAM_Reader
 
+
+
 def main(args):
     sam_file = None
     embl_file = None
