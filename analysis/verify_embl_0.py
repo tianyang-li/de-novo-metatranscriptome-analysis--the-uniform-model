@@ -81,28 +81,9 @@ def feature_intervals_max(features):
         
     set_max(0, len(features))
 
-def main(args):
-    len_est = None
-    psl_align = None
-    match_percent = 0.9
-    try:
-        opts, args = getopt.getopt(args, 'l:a:m:')
-    except getopt.GetoptError as err:
-        print >> sys.stderr, str(err)
-        sys.exit(1)
-    for opt, arg in opts:
-        if opt == '-l':
-            len_est = arg
-        if opt == '-a':
-            psl_align = arg
-        if opt == '-m':
-            match_percent = float(arg)
-    if not len_est or not args or not psl_align:
-        print >> sys.stderr, "missing"
-        sys.exit(1)
-    
+def get_embl_feature_intervals(embl_files):
     embls = []
-    for arg in args:
+    for arg in embl_files:
         embls.extend(list(SeqIO.parse(arg, 'embl')))
     
     features = {}
@@ -123,6 +104,30 @@ def main(args):
     for embl in features:
         features[embl] = sorted(set(features[embl]), cmp=interval_cmp)
         feature_intervals_max(features[embl])
+        
+    return embls, features
+
+def main(args):
+    len_est = None
+    psl_align = None
+    match_percent = 0.9
+    try:
+        opts, args = getopt.getopt(args, 'l:a:m:')
+    except getopt.GetoptError as err:
+        print >> sys.stderr, str(err)
+        sys.exit(1)
+    for opt, arg in opts:
+        if opt == '-l':
+            len_est = arg
+        if opt == '-a':
+            psl_align = arg
+        if opt == '-m':
+            match_percent = float(arg)
+    if not len_est or not args or not psl_align:
+        print >> sys.stderr, "missing"
+        sys.exit(1)
+    
+    embls, features = get_embl_feature_intervals(args)
     
     len_ests = {}
     with open(len_est, 'r') as le:
