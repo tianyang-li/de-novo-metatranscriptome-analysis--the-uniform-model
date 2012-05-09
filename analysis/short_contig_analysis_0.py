@@ -24,6 +24,7 @@ from Bio import SeqIO
 from HTSeq import SAM_Reader
 
 from single_len_est_0 import single_est_len
+from verify_embl_0 import get_embl_feature_intervals, interval_search
 
 def main(args):
     sam_file = None
@@ -50,6 +51,18 @@ def main(args):
         if opt == "--est-upper":
             est_upper = float(arg)
         if opt == "--blat-blast8":
+            # 0 Query id
+            # 1 Subject id
+            # 2 % identity
+            # 3 alignment length
+            # 4 mismatches
+            # 5 gap openings
+            # 6 q. start
+            # 7 q. end
+            # 8 s. start
+            # 9 s. end
+            # 10 e-value
+            # 11 bit score
             blat_blast8_file = arg
     if (not sam_file or not embl_file
         or not est_lower or not est_upper
