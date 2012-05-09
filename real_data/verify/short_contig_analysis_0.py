@@ -23,17 +23,17 @@ import sys
 from Bio import SeqIO
 from HTSeq import SAM_Reader
 
+
+
 def main(args):
     sam_file = None
     embl_file = None
     est_lower = None
     est_upper = None
-    blat_blast8_file = None
     try:
         opts, args = getopt.getopt(args, '',
                                    ["--sam=", "--embl=", "--contigs",
-                                    "--est-lower=", "--est-upper="
-                                    , "--blat-blast8"])
+                                    "--est-lower=", "--est-upper="])
     except getopt.GetoptError as err:
         print >> sys.stderr, str(err)
         sys.exit(1)
@@ -47,11 +47,8 @@ def main(args):
             est_lower = float(arg)
         if opt == "--est-upper":
             est_upper = float(arg)
-        if opt == "--blat-blast8":
-            blat_blast8_file = arg
     if (not sam_file or not embl_file
-        or not est_lower or not est_upper
-        or not blat_blast8_file):
+        or not est_lower or not est_upper):
         print >> sys.stderr, "missing"
         sys.exit(1)
     
