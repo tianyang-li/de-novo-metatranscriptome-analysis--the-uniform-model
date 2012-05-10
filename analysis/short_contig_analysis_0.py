@@ -28,6 +28,14 @@ from HTSeq import SAM_Reader
 from single_len_est_0 import single_est_len
 from verify_embl_0 import get_embl_feature_intervals, interval_search
 
+class SingleContigAlign(object):
+    def __init__(self, contig_len, read_len):
+        self.contig_len = contig_len
+        self.n_reads = None
+    
+    def len_est(self, read_len):
+        return single_est_len(self.contig_len, self.n_reads, read_len)
+
 def main(args):
     sam_file = None
     embl_file = None
@@ -36,11 +44,13 @@ def main(args):
     est_lower_bp = None
     est_upper_bp = None
     blat_blast8_file = None
+    read_len = None
+    kmer = None
     try:
         opts, args = getopt.getopt(args, '',
-                                   ["sam=", "embl=", "contigs",
+                                   ["sam=", "embl=", "contigs=",
                                     "est-lower=", "est-upper="
-                                    , "blat-blast8"])
+                                    , "blat-blast8="])
     except getopt.GetoptError as err:
         print >> sys.stderr, str(err)
         sys.exit(1)
@@ -73,6 +83,7 @@ def main(args):
     if (not sam_file or not embl_file
         or not est_lower_ratio or not est_upper_ratio
         or not est_lower_bp or not est_upper_bp
+        or not read_len or not kmer
         or not blat_blast8_file):
         print >> sys.stderr, "missing"
         sys.exit(1)
