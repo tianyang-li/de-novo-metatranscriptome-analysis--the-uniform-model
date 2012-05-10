@@ -37,10 +37,16 @@ class SingleContigAlign(object):
     def len_est(self, read_len):
         return single_est_len(self.contig_len, self.n_reads, read_len)
 
-def get_contigs_info(contigs_file, read_len):
+def get_contigs_info(contigs_file, read_len, sam_file):
     contigs = {}
     for rec in SeqIO.parse(contigs_file, 'fasta'):
         contigs[rec.id] = SingleContigAlign(len(rec.seq), read_len)
+    for align in SAM_Reader(sam_file):
+        if align.aligned and align.iv.chrom in contigs:
+            contig = contigs[align.iv.chrom]
+            contig.read_start[align.iv.start] += 1
+            if align.iv.end - align.iv.start != read_len:
+                print >> sys.stderr, "Warning: %s %s incomplete alignment!" % (align.iv.chrom, align.read.name)
     return contigs
 
 def main(args):
@@ -59,15 +65,20 @@ def main(args):
         opts, args = getopt.getopt(args, '',
                                    ["sam=", "embl=", "contigs=",
                                     "est-lower=", "est-upper="
-                                    , "blat-blast8=", "align-identity="])
+                                    , "blat-blast8=", "contig-align-identity=",
+                                    "read-len=", "kmer="])
     except getopt.GetoptError as err:
         print >> sys.stderr, str(err)
         sys.exit(1)
     for opt, arg in opts:
+        if opt == "--read-len":
+            read_len = int(arg)
+        if opt == "--kmer":
+            kmer = int(arg)
         if opt == "--contigs":
             contigs_file = arg
-        if opt == "--align-identity":
-            align_identity = arg
+        if opt == "--contig-align-identity":
+            align_identity = float(arg)
         if opt == "--sam":
             # reads onto contig
             sam_file = arg
@@ -101,10 +112,13 @@ def main(args):
         or not contigs_file
         or not blat_blast8_file):
         print >> sys.stderr, "missing"
+        print (sam_file, embl_file, est_lower_bp
+               , est_lower_ratio, est_upper_bp, est_upper_ratio
+               , read_len, kmer, align_identity, contigs_file, blat_blast8_file)
         sys.exit(1)
     
     _, features = get_embl_feature_intervals([embl_file])
-    contigs = get_contigs_info(contigs_file, read_len)
+    contigs = get_contigs_info(contigs_file, read_len, sam_file)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
