@@ -36,6 +36,14 @@ class SingleContigAlign(object):
     
     def len_est(self, read_len):
         return single_est_len(self.contig_len, self.n_reads, read_len)
+    
+    def check_contig(self, read_len):
+        if self.read_start[0] == 0:
+            return False
+        for pos in xrange(1, read_len):
+            if self.read_start[-pos] != 0:
+                return False
+        return True
 
 def get_contigs_info(contigs_file, read_len, sam_file):
     contigs = {}
@@ -45,8 +53,6 @@ def get_contigs_info(contigs_file, read_len, sam_file):
         if align.aligned and align.iv.chrom in contigs:
             contig = contigs[align.iv.chrom]
             contig.read_start[align.iv.start] += 1
-            if align.iv.end - align.iv.start != read_len:
-                print >> sys.stderr, "Warning: %s %s incomplete alignment!" % (align.iv.chrom, align.read.name)
     return contigs
 
 def main(args):
@@ -119,6 +125,17 @@ def main(args):
     
     _, features = get_embl_feature_intervals([embl_file])
     contigs = get_contigs_info(contigs_file, read_len, sam_file)
+    
+    print >> sys.stderr, "%d contigs before removing contigs with bad read alignments" % len(contigs)
+    
+    del_contigs = []
+    for id, contig_info in contigs.items():
+        if not contig_info.check_contig:
+            del_contigs.append(id)
+    for id in del_contigs:
+        del contigs[id]
+    
+    print >> sys.stderr, "%d contigs after removing contigs with bad read alignments" % len(contigs)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
