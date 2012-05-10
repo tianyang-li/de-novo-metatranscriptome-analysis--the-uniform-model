@@ -20,6 +20,8 @@ from __future__ import division
 import getopt
 import sys
 
+import csv
+
 import rpy2
 
 from Bio import SeqIO
@@ -31,8 +33,9 @@ from verify_embl_0 import get_embl_feature_intervals, interval_search
 class SingleContigAlign(object):
     def __init__(self, contig_len, read_len):
         self.contig_len = contig_len
-        self.n_reads = None
+        self.n_reads = 0
         self.read_start = [0] * contig_len
+        self.annot_ivs = []
     
     def len_est(self, read_len):
         return single_est_len(self.contig_len, self.n_reads, read_len)
@@ -53,7 +56,28 @@ def get_contigs_info(contigs_file, read_len, sam_file):
         if align.aligned and align.iv.chrom in contigs:
             contig = contigs[align.iv.chrom]
             contig.read_start[align.iv.start] += 1
+            contig.n_reads += 1
     return contigs
+
+def search_contigs_ref_ivs(contigs, blat_blast8_file, align_identity, e_val, features):
+    with open(blat_blast8_file, 'r') as blat_blast8:
+        reader = csv.reader(blat_blast8, delimiter="\t")
+        for row in reader:
+            # 0 Query id
+            # 1 Subject id
+            # 2 % identity
+            # 3 alignment length
+            # 4 mismatches
+            # 5 gap openings
+            # 6 q. start
+            # 7 q. end
+            # 8 s. start
+            # 9 s. end
+            # 10 e-value
+            # 11 bit score
+            if (float(row[2]) / 100 > align_identity 
+                and row[10] < e_val):
+                
 
 def main(args):
     sam_file = None
@@ -67,12 +91,13 @@ def main(args):
     kmer = None
     contigs_file = None
     align_identity = None
+    e_val = None
     try:
         opts, args = getopt.getopt(args, '',
                                    ["sam=", "embl=", "contigs=",
                                     "est-lower=", "est-upper="
                                     , "blat-blast8=", "contig-align-identity=",
-                                    "read-len=", "kmer="])
+                                    "read-len=", "kmer=", "e-value="])
     except getopt.GetoptError as err:
         print >> sys.stderr, str(err)
         sys.exit(1)
@@ -84,6 +109,7 @@ def main(args):
         if opt == "--contigs":
             contigs_file = arg
         if opt == "--contig-align-identity":
+            # percentage converted to decimal
             align_identity = float(arg)
         if opt == "--sam":
             # reads onto contig
@@ -110,12 +136,15 @@ def main(args):
             # 10 e-value
             # 11 bit score
             blat_blast8_file = arg
+        if opt == "--e-value":
+            e_val = float(arg)
     if (not sam_file or not embl_file
         or not est_lower_ratio or not est_upper_ratio
         or not est_lower_bp or not est_upper_bp
         or not read_len or not kmer
         or not align_identity
         or not contigs_file
+        or not e_val
         or not blat_blast8_file):
         print >> sys.stderr, "missing"
         print (sam_file, embl_file, est_lower_bp
@@ -125,18 +154,8 @@ def main(args):
     
     _, features = get_embl_feature_intervals([embl_file])
     contigs = get_contigs_info(contigs_file, read_len, sam_file)
+    search_contigs_ref_ivs(contigs, blat_blast8_file, align_identity, e_val, features)
     
-    print >> sys.stderr, "%d contigs before removing contigs with bad read alignments" % len(contigs)
-    
-    del_contigs = []
-    for id, contig_info in contigs.items():
-        if not contig_info.check_contig:
-            del_contigs.append(id)
-    for id in del_contigs:
-        del contigs[id]
-    
-    print >> sys.stderr, "%d contigs after removing contigs with bad read alignments" % len(contigs)
-
 if __name__ == '__main__':
     main(sys.argv[1:])
 
