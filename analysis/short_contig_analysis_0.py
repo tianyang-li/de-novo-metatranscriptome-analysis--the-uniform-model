@@ -32,9 +32,16 @@ class SingleContigAlign(object):
     def __init__(self, contig_len, read_len):
         self.contig_len = contig_len
         self.n_reads = None
+        self.read_start = [0] * contig_len
     
     def len_est(self, read_len):
         return single_est_len(self.contig_len, self.n_reads, read_len)
+
+def get_contigs_info(contigs_file, read_len):
+    contigs = {}
+    for rec in SeqIO.parse(contigs_file, 'fasta'):
+        contigs[rec.id] = SingleContigAlign(len(rec.seq), read_len)
+    return contigs
 
 def main(args):
     sam_file = None
@@ -46,15 +53,21 @@ def main(args):
     blat_blast8_file = None
     read_len = None
     kmer = None
+    contigs_file = None
+    align_identity = None
     try:
         opts, args = getopt.getopt(args, '',
                                    ["sam=", "embl=", "contigs=",
                                     "est-lower=", "est-upper="
-                                    , "blat-blast8="])
+                                    , "blat-blast8=", "align-identity="])
     except getopt.GetoptError as err:
         print >> sys.stderr, str(err)
         sys.exit(1)
     for opt, arg in opts:
+        if opt == "--contigs":
+            contigs_file = arg
+        if opt == "--align-identity":
+            align_identity = arg
         if opt == "--sam":
             # reads onto contig
             sam_file = arg
@@ -84,12 +97,14 @@ def main(args):
         or not est_lower_ratio or not est_upper_ratio
         or not est_lower_bp or not est_upper_bp
         or not read_len or not kmer
+        or not align_identity
+        or not contigs_file
         or not blat_blast8_file):
         print >> sys.stderr, "missing"
         sys.exit(1)
     
     _, features = get_embl_feature_intervals([embl_file])
-    
+    contigs = get_contigs_info(contigs_file, read_len)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
