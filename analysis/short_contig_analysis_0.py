@@ -77,7 +77,7 @@ def search_contigs_ref_ivs(contigs, blat_blast8_file, align_identity, e_val, fea
             # 11 bit score
             if (float(row[2]) / 100 > align_identity 
                 and row[10] < e_val):
-                pass
+                # TODO: 
 
 def main(args):
     sam_file = None
