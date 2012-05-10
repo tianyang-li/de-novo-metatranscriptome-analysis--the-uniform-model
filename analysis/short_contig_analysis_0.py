@@ -28,14 +28,27 @@ from Bio import SeqIO
 from HTSeq import SAM_Reader
 
 from single_len_est_0 import single_est_len
-from verify_embl_0 import get_embl_feature_intervals, interval_search
+from verify_embl_0 import get_embl_feature_intervals, interval_search, Interval
+
+class AnnotationIntervals(object):
+    def __init__(self):
+        #      [ .. q .. ]
+        #   [ .... s .... ]
+        self.q_in_s = []
+        #     [ ..... q .... ]
+        #           [ .... s .......]
+        # or the other side
+        self.q_overlaps_s = []
+        #  [ ......... q ............ ]
+        #       [ ....  s ..... ]
+        self.q_covers_s = []
 
 class SingleContigAlign(object):
     def __init__(self, contig_len, read_len):
         self.contig_len = contig_len
         self.n_reads = 0
         self.read_start = [0] * contig_len
-        self.annot_ivs = []
+        self.annot_ivs = AnnotationIntervals()
     
     def len_est(self, read_len):
         return single_est_len(self.contig_len, self.n_reads, read_len)
@@ -46,7 +59,7 @@ class SingleContigAlign(object):
         for pos in xrange(1, read_len):
             if self.read_start[-pos] != 0:
                 return False
-        return True
+        return True 
 
 def get_contigs_info(contigs_file, read_len, sam_file):
     contigs = {}
@@ -75,8 +88,14 @@ def search_contigs_ref_ivs(contigs, blat_blast8_file, align_identity, e_val, fea
             # 9 s. end
             # 10 e-value
             # 11 bit score
+            #
+            # positions: one based inclusive
             if (float(row[2]) / 100 > align_identity 
                 and row[10] < e_val):
+                s_iv = Interval(int(row[8]) - 1, int(row[9]))
+                annot_iv = interval_search(features[row[1].split("|")[-1]], s_iv)
+                if annot_iv:
+                    
                 # TODO: 
 
 def main(args):
