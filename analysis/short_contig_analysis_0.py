@@ -44,6 +44,25 @@ class Interval(object):
         self.min = low
         
 def feature_intervals_pre_proc(embl_features):
+    def set_max_min(l, h):
+        x = int((l + h) / 2)
+        if x > l:
+            tmp_min, tmp_max = set_max_min(l, x - 1)
+            if tmp_max > embl_features[x].max:
+                embl_features[x].max = tmp_max
+            if tmp_min > embl_features[x].min:
+                embl_features[x].min = tmp_min
+        if x < h:
+            tmp_min, tmp_max = set_max_min(x + 1, h)
+            if tmp_max > embl_features[x].max:
+                embl_features[x].max = tmp_max
+            if tmp_min > embl_features[x].min:
+                embl_features[x].min = tmp_min
+        return embl_features[x].min, embl_features[x].max
+        
+    high = len(embl_features) - 1
+    low = 0
+    set_max_min(low, high)
 
 def get_embl_feature_intervals(embl_files):
     embls = []
@@ -68,8 +87,8 @@ def get_embl_feature_intervals(embl_files):
         
     return embls, features
 
-
 def interval_search(features, iv):
+    #TODO
 
 class AnnotationIntervals(object):
     def __init__(self):
