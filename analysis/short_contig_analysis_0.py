@@ -84,7 +84,7 @@ def get_embl_feature_intervals(embl_files):
                 if (feat.location.start.position 
                     < feat.location.end.position):
                     embl_features.append(Interval(feat.location.start.position,
-                                          feat.location.end.position - 1, feat.strand))
+                                          feat.location.end.position - 1))
         features[embl.id] = embl_features
     
     for embl in features:
@@ -172,6 +172,9 @@ def get_contigs_info(contigs_file, read_len, sam_file):
     return contigs
 
 def search_contigs_ref_ivs(contigs, blat_blast8_file, align_identity, e_val, features):
+    blat_count = 0  # TODO: remove it
+    blat_annot = 0  # TODO: remove
+    
     with open(blat_blast8_file, 'r') as blat_blast8:
         reader = csv.reader(blat_blast8, delimiter="\t")
         for row in reader:
@@ -192,10 +195,19 @@ def search_contigs_ref_ivs(contigs, blat_blast8_file, align_identity, e_val, fea
             if (float(row[2]) / 100 > align_identity 
                 and row[10] < e_val):
                 s_iv = Interval(int(row[8]) - 1, int(row[9]))
-                annot_iv = interval_search(features[row[1].split("|")[-1]], s_iv)
-                if annot_iv:
-                    
+                annot_ivs = interval_search(features[row[1].split("|")[-1]], s_iv)
+                
+                blat_count += 1  # TODO: remove it 
+                blat_annot += 1  # TODO: remove
+                
+                if annot_ivs:
+                    for test_iv in annot_ivs:
+                        if not interval_overlap(test_iv, s_iv):
+                            print >> sys.stderr, "error"
                 # TODO: 
+    
+    # TODO: remove
+    print >> sys.stderr, "entries %d found %d annotations" % (blat_count, blat_annot)
 
 def main(args):
     sam_file = None
