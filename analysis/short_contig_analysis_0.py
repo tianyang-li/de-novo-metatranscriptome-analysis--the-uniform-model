@@ -28,7 +28,48 @@ from Bio import SeqIO
 from HTSeq import SAM_Reader
 
 from single_len_est_0 import single_est_len
-from verify_embl_0 import get_embl_feature_intervals, interval_search, Interval
+
+def interval_cmp(iv1, iv2):
+    # iv is a tuple
+    # (start, end, strand)
+    if iv1.low == iv2.low:
+        return iv1.high - iv2.high
+    return iv1.low - iv2.low
+
+class Interval(object):
+    def __init__(self, low, high):
+        self.low = low
+        self.high = high
+        self.max = high
+        self.min = low
+        
+def feature_intervals_pre_proc(embl_features):
+
+def get_embl_feature_intervals(embl_files):
+    embls = []
+    for arg in embl_files:
+        embls.extend(list(SeqIO.parse(arg, 'embl')))
+    
+    features = {}
+    for embl in embls:
+        embl_features = []
+        type_source = 'source'  # don't take annotations of the whole sequence
+        for feat in embl.features:
+            if feat.type != type_source:
+                if (feat.location.start.position 
+                    < feat.location.end.position):
+                    embl_features.append(Interval(feat.location.start.position,
+                                          feat.location.end.position - 1, feat.strand))
+        features[embl.id] = embl_features
+    
+    for embl in features:
+        features[embl] = sorted(set(features[embl]), cmp=interval_cmp)
+        feature_intervals_pre_proc(features[embl])
+        
+    return embls, features
+
+
+def interval_search(features, iv):
 
 class AnnotationIntervals(object):
     def __init__(self):
@@ -44,11 +85,12 @@ class AnnotationIntervals(object):
         self.q_covers_s = []
 
 class SingleContigAlign(object):
-    def __init__(self, contig_len, read_len):
+    def __init__(self, contig_len, read_len, seq_str):
         self.contig_len = contig_len
         self.n_reads = 0
         self.read_start = [0] * contig_len
         self.annot_ivs = AnnotationIntervals()
+        self.seq_str = seq_str
     
     def len_est(self, read_len):
         return single_est_len(self.contig_len, self.n_reads, read_len)
@@ -64,7 +106,7 @@ class SingleContigAlign(object):
 def get_contigs_info(contigs_file, read_len, sam_file):
     contigs = {}
     for rec in SeqIO.parse(contigs_file, 'fasta'):
-        contigs[rec.id] = SingleContigAlign(len(rec.seq), read_len)
+        contigs[rec.id] = SingleContigAlign(len(rec.seq), read_len, str(rec.seq))
     for align in SAM_Reader(sam_file):
         if align.aligned and align.iv.chrom in contigs:
             contig = contigs[align.iv.chrom]

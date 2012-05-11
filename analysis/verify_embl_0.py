@@ -97,6 +97,7 @@ def get_embl_feature_intervals(embl_files):
                     embl_features.append(Interval(feat.location.start.position,
                                           feat.location.end.position, feat.strand))
                 else:
+                    # apparently doesn't occur
                     embl_features.append(Interval(feat.location.end.position,
                                           feat.location.start.position, feat.strand))
         features[embl.id] = embl_features
