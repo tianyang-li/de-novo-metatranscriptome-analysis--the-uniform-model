@@ -178,6 +178,9 @@ def search_contigs_ref_ivs(contigs, blat_blast8_file, align_identity, e_val, fea
     with open(blat_blast8_file, 'r') as blat_blast8:
         reader = csv.reader(blat_blast8, delimiter="\t")
         for row in reader:
+            
+            blat_count += 1  # TODO: remove it
+             
             # 0 Query id
             # 1 Subject id
             # 2 % identity
@@ -197,7 +200,6 @@ def search_contigs_ref_ivs(contigs, blat_blast8_file, align_identity, e_val, fea
                 s_iv = Interval(int(row[8]) - 1, int(row[9]))
                 annot_ivs = interval_search(features[row[1].split("|")[-1]], s_iv)
                 
-                blat_count += 1  # TODO: remove it 
                 blat_annot += 1  # TODO: remove
                 
                 if annot_ivs:
@@ -283,7 +285,9 @@ def main(args):
         sys.exit(1)
     
     _, features = get_embl_feature_intervals([embl_file])
+    
     contigs = get_contigs_info(contigs_file, read_len, sam_file)
+    
     search_contigs_ref_ivs(contigs, blat_blast8_file, align_identity, e_val, features)
     
 if __name__ == '__main__':
