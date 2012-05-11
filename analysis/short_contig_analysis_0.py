@@ -29,6 +29,13 @@ from HTSeq import SAM_Reader
 
 from single_len_est_0 import single_est_len
 
+def interval_overlap(iv1, iv2):
+    if iv1.low > iv2.high:
+        return False
+    if iv1.high < iv2.low:
+        return False
+    return True
+
 def interval_cmp(iv1, iv2):
     # iv is a tuple
     # (start, end, strand)
@@ -38,6 +45,7 @@ def interval_cmp(iv1, iv2):
 
 class Interval(object):
     def __init__(self, low, high):
+        # 0 based positions, inclusive
         self.low = low
         self.high = high
         self.max = high
@@ -60,9 +68,7 @@ def feature_intervals_pre_proc(embl_features):
                 embl_features[x].min = tmp_min
         return embl_features[x].min, embl_features[x].max
         
-    high = len(embl_features) - 1
-    low = 0
-    set_max_min(low, high)
+    set_max_min(0, len(embl_features) - 1)
 
 def get_embl_feature_intervals(embl_files):
     embls = []
@@ -88,20 +94,52 @@ def get_embl_feature_intervals(embl_files):
     return embls, features
 
 def interval_search(features, iv):
-    #TODO
+    def find_overlap_ivs(l, h):
+        x = int((l + h) / 2)
+        if features[x].max < iv.low or features[x].min > iv.high:
+            return []
+        found_ivs = None
+        if interval_overlap(features[x], iv):
+            found_ivs = [features[x]]
+        else:
+            found_ivs = []
+        if x > l:
+            found_ivs.extend(find_overlap_ivs(l, x - 1))
+        if x < h:
+            found_ivs.extend(find_overlap_ivs(x + 1, h))
+        return found_ivs
+    
+    return find_overlap_ivs(0, len(features) - 1)
 
 class AnnotationIntervals(object):
     def __init__(self):
         #      [ .. q .. ]
         #   [ .... s .... ]
-        self.q_in_s = []
+        self.q_in_s = []  # type 1
         #     [ ..... q .... ]
         #           [ .... s .......]
         # or the other side
-        self.q_overlaps_s = []
+        self.q_overlaps_s = []  # type 2
         #  [ ......... q ............ ]
         #       [ ....  s ..... ]
-        self.q_covers_s = []
+        self.q_covers_s = []  # type 3
+    
+    def add_iv(self, iv_type, iv):
+        if iv == 1:
+            self.q_in_s.append(iv)
+        if iv == 2:
+            self.q_overlaps_s.append(iv)
+        if iv == 3:
+            self.q_covers_s.append(iv)
+            
+def overlap_type(q_iv, s_iv):
+    if q_iv.low >= s_iv.low:
+        if q_iv.high <= s_iv.high:
+            return 1
+        return 2
+    if q_iv.high <= s_iv.high:
+        return 2
+    return 3 
 
 class SingleContigAlign(object):
     def __init__(self, contig_len, read_len, seq_str):
