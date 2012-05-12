@@ -50,6 +50,15 @@ class Interval(object):
         self.high = high
         self.max = high
         self.min = low
+    
+    def __eq__(self, other):
+        return self.low == other.low and self.high == other.high
+
+    def __hash__(self):
+        return hash((self.low, self.high))
+    
+    def __cmp__(self, other):
+        return interval_cmp(self, other)
         
 def feature_intervals_pre_proc(embl_features):
     def set_max_min(l, h):
@@ -58,13 +67,13 @@ def feature_intervals_pre_proc(embl_features):
             tmp_min, tmp_max = set_max_min(l, x - 1)
             if tmp_max > embl_features[x].max:
                 embl_features[x].max = tmp_max
-            if tmp_min > embl_features[x].min:
+            if tmp_min < embl_features[x].min:
                 embl_features[x].min = tmp_min
         if x < h:
             tmp_min, tmp_max = set_max_min(x + 1, h)
             if tmp_max > embl_features[x].max:
                 embl_features[x].max = tmp_max
-            if tmp_min > embl_features[x].min:
+            if tmp_min < embl_features[x].min:
                 embl_features[x].min = tmp_min
         return embl_features[x].min, embl_features[x].max
         
@@ -171,16 +180,10 @@ def get_contigs_info(contigs_file, read_len, sam_file):
             contig.n_reads += 1
     return contigs
 
-def search_contigs_ref_ivs(contigs, blat_blast8_file, align_identity, e_val, features):
-    blat_count = 0  # TODO: remove it
-    blat_annot = 0  # TODO: remove
-    
+def search_contigs_ref_ivs(contigs, blat_blast8_file, align_identity, e_val, features):  
     with open(blat_blast8_file, 'r') as blat_blast8:
         reader = csv.reader(blat_blast8, delimiter="\t")
         for row in reader:
-            
-            blat_count += 1  # TODO: remove it
-             
             # 0 Query id
             # 1 Subject id
             # 2 % identity
@@ -195,22 +198,18 @@ def search_contigs_ref_ivs(contigs, blat_blast8_file, align_identity, e_val, fea
             # 11 bit score
             #
             # positions: one based inclusive
+            
             if (float(row[2]) / 100 > align_identity 
-                and row[10] < e_val):
-                s_iv = Interval(int(row[8]) - 1, int(row[9]))
+                and float(row[10]) < e_val):
+                s_iv = None
+                if int(row[8]) < int(row[9]):
+                    s_iv = Interval(int(row[8]) - 1, int(row[9]) - 1)
+                else:
+                    s_iv = Interval(int(row[9]) - 1, int(row[8]) - 1)
                 annot_ivs = interval_search(features[row[1].split("|")[-1]], s_iv)
-                
-                blat_annot += 1  # TODO: remove
-                
                 if annot_ivs:
-                    for test_iv in annot_ivs:
-                        if not interval_overlap(test_iv, s_iv):
-                            print >> sys.stderr, "error"
-                # TODO: 
+                    #TODO:
     
-    # TODO: remove
-    print >> sys.stderr, "entries %d found %d annotations" % (blat_count, blat_annot)
-
 def main(args):
     sam_file = None
     embl_file = None
