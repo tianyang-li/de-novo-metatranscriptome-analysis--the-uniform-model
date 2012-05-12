@@ -22,7 +22,9 @@ import sys
 
 import csv
 
-import rpy2
+import rpy2.robjects as robj
+from rpy2.robjects.packages import importr
+from scipy.constants import pi
 
 from Bio import SeqIO
 from HTSeq import SAM_Reader
@@ -59,6 +61,14 @@ class Interval(object):
     
     def __cmp__(self, other):
         return interval_cmp(self, other)
+
+class QSIntervals(object):
+    """
+    genomic intervals of contigs and annotations contigs that are mapped too
+    """
+    def __init__(self, q_iv, s_iv):
+        self.q_iv = q_iv  # contig interval on reference
+        self.s_iv = s_iv  # annotation interval on reference
         
 def feature_intervals_pre_proc(embl_features):
     def set_max_min(l, h):
@@ -133,13 +143,13 @@ class AnnotationIntervals(object):
         #       [ ....  s ..... ]
         self.q_covers_s = []  # type 3
     
-    def add_iv(self, iv_type, iv):
-        if iv == 1:
-            self.q_in_s.append(iv)
-        if iv == 2:
-            self.q_overlaps_s.append(iv)
-        if iv == 3:
-            self.q_covers_s.append(iv)
+    def add_iv(self, iv_type, qs_iv):
+        if iv_type == 1:
+            self.q_in_s.append(qs_iv)
+        if iv_type == 2:
+            self.q_overlaps_s.append(qs_iv)
+        if iv_type == 3:
+            self.q_covers_s.append(qs_iv)
             
 def overlap_type(q_iv, s_iv):
     if q_iv.low >= s_iv.low:
@@ -150,6 +160,11 @@ def overlap_type(q_iv, s_iv):
         return 2
     return 3 
 
+def contig_rao_spacing_test(contigs):
+    circular = importr('circular')
+    rst = circular.rao_spacing_test
+    circ = circular.circular
+
 class SingleContigAlign(object):
     def __init__(self, contig_len, read_len, seq_str):
         self.contig_len = contig_len
@@ -159,7 +174,8 @@ class SingleContigAlign(object):
         self.seq_str = seq_str
     
     def len_est(self, read_len):
-        return single_est_len(self.contig_len, self.n_reads, read_len)
+        self.est_len = single_est_len(self.contig_len,
+                                      self.n_reads, read_len)
     
     def check_contig(self, read_len):
         if self.read_start[0] == 0:
@@ -168,11 +184,18 @@ class SingleContigAlign(object):
             if self.read_start[-pos] != 0:
                 return False
         return True 
+    
+    def get_coverage(self, read_len, d_max):
+        self.coverage = (self.n_reads / 
+                         (2 * d_max + self.contig_len 
+                          - read_len + 1))
 
 def get_contigs_info(contigs_file, read_len, sam_file):
     contigs = {}
     for rec in SeqIO.parse(contigs_file, 'fasta'):
-        contigs[rec.id] = SingleContigAlign(len(rec.seq), read_len, str(rec.seq))
+        if len(rec.seq) >= read_len:
+            contigs[rec.id] = SingleContigAlign(len(rec.seq), read_len,
+                                                str(rec.seq))
     for align in SAM_Reader(sam_file):
         if align.aligned and align.iv.chrom in contigs:
             contig = contigs[align.iv.chrom]
@@ -180,7 +203,16 @@ def get_contigs_info(contigs_file, read_len, sam_file):
             contig.n_reads += 1
     return contigs
 
-def search_contigs_ref_ivs(contigs, blat_blast8_file, align_identity, e_val, features):  
+def rm_one_read_contig(contigs):
+    rm_ids = []
+    for contig_id, contig in contigs.iteritems():
+        if contig.n_reads <= 1:
+            rm_ids.append(contig_id)
+            
+    for rm_id in rm_ids:
+        del contigs[rm_id]
+
+def search_contigs_ref_ivs(contigs, blat_blast8_file, align_identity, e_val, features):
     with open(blat_blast8_file, 'r') as blat_blast8:
         reader = csv.reader(blat_blast8, delimiter="\t")
         for row in reader:
@@ -198,17 +230,20 @@ def search_contigs_ref_ivs(contigs, blat_blast8_file, align_identity, e_val, fea
             # 11 bit score
             #
             # positions: one based inclusive
-            
-            if (float(row[2]) / 100 > align_identity 
-                and float(row[10]) < e_val):
-                s_iv = None
-                if int(row[8]) < int(row[9]):
-                    s_iv = Interval(int(row[8]) - 1, int(row[9]) - 1)
-                else:
-                    s_iv = Interval(int(row[9]) - 1, int(row[8]) - 1)
-                annot_ivs = interval_search(features[row[1].split("|")[-1]], s_iv)
-                if annot_ivs:
-                    #TODO:
+            if row[0] in contigs:
+                contig = contigs[row[0]]
+                if (float(row[2]) / 100 > align_identity 
+                    and float(row[10]) < e_val):
+                    s_iv = None
+                    if int(row[8]) < int(row[9]):
+                        s_iv = Interval(int(row[8]) - 1, int(row[9]) - 1)
+                    else:
+                        s_iv = Interval(int(row[9]) - 1, int(row[8]) - 1)
+                    annot_ivs = interval_search(features[row[1].split("|")[-1]], s_iv)
+                    if annot_ivs:
+                        for annot_iv in annot_ivs:
+                            contig.annot_ivs.add_iv(overlap_type(s_iv, annot_iv),
+                                                    QSIntervals(s_iv, annot_iv))
     
 def main(args):
     sam_file = None
@@ -223,16 +258,20 @@ def main(args):
     contigs_file = None
     align_identity = None
     e_val = None
+    fout_prefix = None
     try:
         opts, args = getopt.getopt(args, '',
                                    ["sam=", "embl=", "contigs=",
                                     "est-lower=", "est-upper="
                                     , "blat-blast8=", "contig-align-identity=",
-                                    "read-len=", "kmer=", "e-value="])
+                                    "read-len=", "kmer=", "e-value=",
+                                    "out-prefix="])
     except getopt.GetoptError as err:
         print >> sys.stderr, str(err)
         sys.exit(1)
     for opt, arg in opts:
+        if opt == "--out-prefix":
+            fout_prefix = arg
         if opt == "--read-len":
             read_len = int(arg)
         if opt == "--kmer":
@@ -254,18 +293,6 @@ def main(args):
             est_upper_bp = int(arg.split(",")[1])
             est_upper_ratio = float(arg.split(",")[0])
         if opt == "--blat-blast8":
-            # 0 Query id
-            # 1 Subject id
-            # 2 % identity
-            # 3 alignment length
-            # 4 mismatches
-            # 5 gap openings
-            # 6 q. start
-            # 7 q. end
-            # 8 s. start
-            # 9 s. end
-            # 10 e-value
-            # 11 bit score
             blat_blast8_file = arg
         if opt == "--e-value":
             e_val = float(arg)
@@ -276,18 +303,34 @@ def main(args):
         or not align_identity
         or not contigs_file
         or not e_val
+        or not fout_prefix
         or not blat_blast8_file):
         print >> sys.stderr, "missing"
-        print (sam_file, embl_file, est_lower_bp
+        print >> sys.stderr, (sam_file, embl_file, est_lower_bp
                , est_lower_ratio, est_upper_bp, est_upper_ratio
-               , read_len, kmer, align_identity, contigs_file, blat_blast8_file)
+               , read_len, kmer, align_identity, contigs_file,
+               blat_blast8_file, fout_prefix)
         sys.exit(1)
     
     _, features = get_embl_feature_intervals([embl_file])
     
     contigs = get_contigs_info(contigs_file, read_len, sam_file)
     
+    rm_one_read_contig(contigs)
+    
     search_contigs_ref_ivs(contigs, blat_blast8_file, align_identity, e_val, features)
+    
+    d_max = read_len - kmer + 1
+    
+    for contig in contigs.itervalues():
+        contig.len_est(read_len)
+        contig.get_coverage(read_len, d_max)
+    
+    contig_rao_spacing_test(contigs)
+    
+    for contig in contigs.itervalues():
+        if contig.annot_ivs.q_in_s:
+            print len(contig.annot_ivs.q_in_s)
     
 if __name__ == '__main__':
     main(sys.argv[1:])
