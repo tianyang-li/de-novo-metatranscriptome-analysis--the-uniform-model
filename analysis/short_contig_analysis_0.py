@@ -22,10 +22,6 @@ import sys
 
 import csv
 
-import rpy2.robjects as robj
-from rpy2.robjects.packages import importr
-from scipy.constants import pi
-
 from Bio import SeqIO
 from HTSeq import SAM_Reader
 
@@ -159,11 +155,6 @@ def overlap_type(q_iv, s_iv):
     if q_iv.high <= s_iv.high:
         return 2
     return 3 
-
-def contig_rao_spacing_test(contigs):
-    circular = importr('circular')
-    rst = circular.rao_spacing_test
-    circ = circular.circular
 
 class SingleContigAlign(object):
     def __init__(self, contig_len, read_len, seq_str):
@@ -325,8 +316,6 @@ def main(args):
     for contig in contigs.itervalues():
         contig.len_est(read_len)
         contig.get_coverage(read_len, d_max)
-    
-    contig_rao_spacing_test(contigs)
     
     for contig in contigs.itervalues():
         if contig.annot_ivs.q_in_s:
