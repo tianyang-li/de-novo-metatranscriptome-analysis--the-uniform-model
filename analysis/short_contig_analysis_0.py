@@ -25,7 +25,50 @@ import csv
 from Bio import SeqIO
 from HTSeq import SAM_Reader
 
+from scipy.stats.mstats import mquantiles
+
 from single_len_est_0 import single_est_len
+
+def calc_t_stat(rp, eff_len, n_reads):
+    # n_reads >= 3
+    av_space = len(rp) / (n_reads - 1)
+    t_stat = 0
+    pos1 = 0
+    pos2 = None
+    n_pos2 = None
+    if rp[0] > 1:
+        pos2 = 0
+        n_pos2 = 2
+    else:
+        pos2 = 1
+        while not rp[pos2]:
+            pos2 += 1
+        n_pos2 = 1
+    while pos2 != eff_len:
+        t_stat += abs(pos2 - pos1 - av_space)
+        pos1 = pos2
+        if n_pos2 < rp[pos2]:
+            n_pos2 += 1
+        else:
+            pos2 += 1
+            n_pos2 = 1
+            while pos2 < eff_len and not rp[pos2]:
+                pos2 += 1
+    return t_stat
+
+def singele_uniform_contig_pval(read_pos, n_reads, read_len, precision):
+    # n_reads >= 3
+    """
+    the test statistic chosen here is similar
+    to the one used in Rao's spacing test
+    """
+    
+    eff_len = len(read_pos) - read_len + 1
+    
+    sim_runs = int(2.1910133173369407 / precision ** 2) + 1
+    t_stats = []
+    for _ in xrange(sim_runs):
+        sim_read_pos = [0] * eff_len 
 
 def interval_overlap(iv1, iv2):
     if iv1.low > iv2.high:
@@ -194,10 +237,13 @@ def get_contigs_info(contigs_file, read_len, sam_file):
             contig.n_reads += 1
     return contigs
 
-def rm_one_read_contig(contigs):
+def rm_few_read_contig(contigs):
+    """
+    only contigs with >= 3 reads
+    """
     rm_ids = []
     for contig_id, contig in contigs.iteritems():
-        if contig.n_reads <= 1:
+        if contig.n_reads <= 2:
             rm_ids.append(contig_id)
             
     for rm_id in rm_ids:
@@ -307,7 +353,7 @@ def main(args):
     
     contigs = get_contigs_info(contigs_file, read_len, sam_file)
     
-    rm_one_read_contig(contigs)
+    rm_few_read_contig(contigs)
     
     search_contigs_ref_ivs(contigs, blat_blast8_file, align_identity, e_val, features)
     
