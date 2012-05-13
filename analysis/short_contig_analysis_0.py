@@ -25,11 +25,11 @@ import csv
 from Bio import SeqIO
 from HTSeq import SAM_Reader
 
-from scipy.stats.mstats import mquantiles
+from random import randint
 
 from single_len_est_0 import single_est_len
 
-def calc_t_stat(rp, eff_len, n_reads):
+def single_contig_calc_t_stat(rp, eff_len, n_reads):
     # n_reads >= 3
     av_space = len(rp) / (n_reads - 1)
     t_stat = 0
@@ -66,9 +66,19 @@ def singele_uniform_contig_pval(read_pos, n_reads, read_len, precision):
     eff_len = len(read_pos) - read_len + 1
     
     sim_runs = int(2.1910133173369407 / precision ** 2) + 1
-    t_stats = []
+    
+    sim_t_stats = []
     for _ in xrange(sim_runs):
         sim_read_pos = [0] * eff_len 
+        sim_read_pos[0] = 1
+        sim_read_pos[-1] = 1
+        for _ in xrange(n_reads - 2):
+            sim_read_pos[randint(0, eff_len - 1)] += 1
+        sim_t_stats.append(single_contig_calc_t_stat(sim_read_pos,
+                                                     eff_len, n_reads))
+    t_stat = single_contig_calc_t_stat(read_pos[:-read_len + 1],
+                                       eff_len, n_reads)
+    #TODO:
 
 def interval_overlap(iv1, iv2):
     if iv1.low > iv2.high:
@@ -249,7 +259,8 @@ def rm_few_read_contig(contigs):
     for rm_id in rm_ids:
         del contigs[rm_id]
 
-def search_contigs_ref_ivs(contigs, blat_blast8_file, align_identity, e_val, features):
+def search_contigs_ref_ivs(contigs, blat_blast8_file, align_identity,
+                           e_val, features):
     with open(blat_blast8_file, 'r') as blat_blast8:
         reader = csv.reader(blat_blast8, delimiter="\t")
         for row in reader:
@@ -276,7 +287,8 @@ def search_contigs_ref_ivs(contigs, blat_blast8_file, align_identity, e_val, fea
                         s_iv = Interval(int(row[8]) - 1, int(row[9]) - 1)
                     else:
                         s_iv = Interval(int(row[9]) - 1, int(row[8]) - 1)
-                    annot_ivs = interval_search(features[row[1].split("|")[-1]], s_iv)
+                    annot_ivs = interval_search(features[row[1].split("|")[-1]],
+                                                s_iv)
                     if annot_ivs:
                         for annot_iv in annot_ivs:
                             contig.annot_ivs.add_iv(overlap_type(s_iv, annot_iv),
@@ -355,7 +367,8 @@ def main(args):
     
     rm_few_read_contig(contigs)
     
-    search_contigs_ref_ivs(contigs, blat_blast8_file, align_identity, e_val, features)
+    search_contigs_ref_ivs(contigs, blat_blast8_file,
+                           align_identity, e_val, features)
     
     d_max = read_len - kmer + 1
     
