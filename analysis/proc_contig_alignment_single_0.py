@@ -24,6 +24,21 @@ from Bio import SeqIO
 from HTSeq import SAM_Reader
 
 def main(args):
+    contigs_file, sam_file = None, None
+    try:
+        opts, args = getopt.getopt(args, '', ["contigs=", 'sam='])
+    except getopt.GetoptError as err:
+        print >> sys.stderr, str(err)
+        sys.exit(1)
+    for opt, arg in opts:
+        if opt == "--contigs":
+            contigs_file = arg
+        if opt == "--sam":
+            sam_file = arg
+    if (not contigs_file
+        or not sam_file):
+        print >> sys.stderr, "missing"
+        sys.exit(1)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
