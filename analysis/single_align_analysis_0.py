@@ -23,6 +23,24 @@ import sys
 from Bio import SeqIO
 from HTSeq import SAM_Reader
 
+class SingleAlign(object):
+    """
+    here each reference chrom strand is 
+    U00096 and not U00096.2
+    """ 
+    
+class SingleContig(object):
+
+class SingleChrom(object):
+    """
+    here each reference chrom strand is 
+    U00096 and not U00096.2
+    
+    use embl.name not embl.id
+    """
+    def __init__(self, embl_rec):
+        self.embl_rec = embl_rec
+
 def main(args):
     embl_file = None
     sam_file = None
