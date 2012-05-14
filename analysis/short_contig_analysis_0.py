@@ -56,7 +56,7 @@ def single_contig_calc_t_stat(rp, eff_len, n_reads):
                 pos2 += 1
     return t_stat
 
-def singele_uniform_contig_pval(read_pos, n_reads, read_len, precision):
+def single_uniform_contig_pval(read_pos, n_reads, read_len, precision):
     # n_reads >= 3
     """
     the test statistic chosen here is similar
@@ -78,7 +78,11 @@ def singele_uniform_contig_pval(read_pos, n_reads, read_len, precision):
                                                      eff_len, n_reads))
     t_stat = single_contig_calc_t_stat(read_pos[:-read_len + 1],
                                        eff_len, n_reads)
-    #TODO:
+    n_leq_t_stat = 0
+    for sim_t_stat in sim_t_stats:
+        if sim_t_stat >= t_stat:
+            n_leq_t_stat += 1
+    return n_leq_t_stat / sim_runs
 
 def interval_overlap(iv1, iv2):
     if iv1.low > iv2.high:
@@ -247,10 +251,13 @@ def get_contigs_info(contigs_file, read_len, sam_file):
             contig.n_reads += 1
     return contigs
 
-def rm_few_read_contig(contigs):
+def single_rm_few_read_contig(contigs, read_len):
     """
     only contigs with >= 3 reads
     """
+    
+    print >> sys.stderr, "before rm contigs: %d" % len(contigs)
+    
     rm_ids = []
     for contig_id, contig in contigs.iteritems():
         if contig.n_reads <= 2:
@@ -258,6 +265,26 @@ def rm_few_read_contig(contigs):
             
     for rm_id in rm_ids:
         del contigs[rm_id]
+    
+    print >> sys.stderr, "after removing contigs with too few reads: %d" % len(contigs)
+    
+    rm_ids = []
+    for contig_id, contig in contigs.iteritems():
+        def single_contig_bad_align():
+            if not contig.read_start[0] or not contig.read_start[-read_len]:
+                return True
+            for cur_pos in xrange(1, read_len):
+                if contig.read_start[cur_pos]:
+                    return True
+            return False
+            
+        if single_contig_bad_align():
+            rm_ids.append(contig_id)
+    
+    for rm_id in rm_ids:
+        del contigs[rm_id]
+    
+    print >> sys.stderr, "after removing contigs with bad alignment: %d" % len(contigs)
 
 def search_contigs_ref_ivs(contigs, blat_blast8_file, align_identity,
                            e_val, features):
@@ -365,7 +392,7 @@ def main(args):
     
     contigs = get_contigs_info(contigs_file, read_len, sam_file)
     
-    rm_few_read_contig(contigs)
+    single_rm_few_read_contig(contigs, read_len)
     
     search_contigs_ref_ivs(contigs, blat_blast8_file,
                            align_identity, e_val, features)
@@ -378,7 +405,7 @@ def main(args):
     
     for contig in contigs.itervalues():
         if contig.annot_ivs.q_in_s:
-            print len(contig.annot_ivs.q_in_s)
+            print single_uniform_contig_pval(contig.read_start, contig.n_reads, read_len, 0.01)
     
 if __name__ == '__main__':
     main(sys.argv[1:])
