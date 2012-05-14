@@ -27,9 +27,10 @@ def main(args):
     embl_file = None
     sam_file = None
     read_len = None
+    kmer = None
     try:
         opts, args = getopt.getopt(args, '', ["embl=", "sam=",
-                                              "read-len="])
+                                              "read-len=", "kmer="])
     except getopt.GetoptError as err:
         print >> sys.stderr, str(err)
         sys.exit(1)
@@ -40,11 +41,16 @@ def main(args):
             embl_file = arg
         if opt == "--sam":
             sam_file = arg
+        if opt == "--kmer":
+            kmer = int(arg)
     if (not embl_file
         or not read_len
+        or not kmer
         or not sam_file):
         print >> sys.stderr, "missing"
         sys.exit(1)
+    
+    d_max = read_len - kmer + 1
 
 if __name__ == '__main__':
     main(sys.argv[1:])
