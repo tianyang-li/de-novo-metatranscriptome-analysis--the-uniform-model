@@ -24,18 +24,24 @@ from Bio import SeqIO
 from HTSeq import SAM_Reader
 
 def main(args):
-    contigs_file, sam_file = None, None
+    embl_file = None
+    sam_file = None
+    read_len = None
     try:
-        opts, args = getopt.getopt(args, '', ["contigs=", 'sam='])
+        opts, args = getopt.getopt(args, '', ["embl=", "sam=",
+                                              "read-len="])
     except getopt.GetoptError as err:
         print >> sys.stderr, str(err)
         sys.exit(1)
     for opt, arg in opts:
-        if opt == "--contigs":
-            contigs_file = arg
+        if opt == "--read-len":
+            read_len = int(arg)
+        if opt == "--embl":
+            embl_file = arg
         if opt == "--sam":
             sam_file = arg
-    if (not contigs_file
+    if (not embl_file
+        or not read_len
         or not sam_file):
         print >> sys.stderr, "missing"
         sys.exit(1)
