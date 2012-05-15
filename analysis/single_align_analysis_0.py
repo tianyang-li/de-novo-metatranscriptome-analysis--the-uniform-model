@@ -21,13 +21,23 @@ import getopt
 import sys
 
 from Bio import SeqIO
-from HTSeq import SAM_Reader
+
+class SeqInterval(object):
+    """
+    0 based inclusive
+    """
+    def __init__(self, low, high):
+        self.low = None
+        self.high = None
 
 class SingleAlign(object):
     """
     here each reference chrom strand is 
     U00096 and not U00096.2
     """ 
+    def __init__(self, align):
+        # align is an alignment in HTSeq
+        self.align = align
     
 class SingleContig(object):
 
@@ -40,14 +50,17 @@ class SingleChrom(object):
     """
     def __init__(self, embl_rec):
         self.embl_rec = embl_rec
+        self.get_embl_features()
+        
+    def get_embl_features(self):
 
 def main(args):
     embl_file = None
-    sam_file = None
+    psl_file = None
     read_len = None
     kmer = None
     try:
-        opts, args = getopt.getopt(args, '', ["embl=", "sam=",
+        opts, args = getopt.getopt(args, '', ["embl=", "psl=",
                                               "read-len=", "kmer="])
     except getopt.GetoptError as err:
         print >> sys.stderr, str(err)
@@ -57,14 +70,14 @@ def main(args):
             read_len = int(arg)
         if opt == "--embl":
             embl_file = arg
-        if opt == "--sam":
-            sam_file = arg
+        if opt == "--psl":
+            psl_file = arg
         if opt == "--kmer":
             kmer = int(arg)
     if (not embl_file
         or not read_len
         or not kmer
-        or not sam_file):
+        or not psl_file):
         print >> sys.stderr, "missing"
         sys.exit(1)
     
