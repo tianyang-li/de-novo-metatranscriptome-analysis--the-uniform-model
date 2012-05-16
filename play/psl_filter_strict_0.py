@@ -97,9 +97,9 @@ def main(args):
     fout_id1 = open("%s_1.ids" % id_prefix, 'w')
     fout_id2 = open("%s_2.ids" % id_prefix, 'w')
     
-    for read_id in fout_id1:
+    for read_id in good_id1:
         fout_id1.write("%s\n" % read_id)
-    for read_id in fout_id2:
+    for read_id in good_id2:
         fout_id2.write("%s\n" % read_id)                        
     
     fout_id1.close()
