@@ -57,7 +57,7 @@ def main(args):
     read_len = None
     id_prefix = None
     try:
-        opts, args = getopt.getopt(args, '', ["psl1=", "id-prefix="
+        opts, args = getopt.getopt(args, '', ["psl1=", "id-prefix=",
                                               "psl2=", "read-len="])
     except getopt.GetoptError as err:
         print >> sys.stderr, str(err)
