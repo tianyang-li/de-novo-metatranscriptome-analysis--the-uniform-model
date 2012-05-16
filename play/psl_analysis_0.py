@@ -17,12 +17,36 @@
 
 """
 print number of gaps and percentage of matches
+
+0 matches - Number of bases that match that aren't repeats
+1 misMatches - Number of bases that don't match
+2 repMatches - Number of bases that match but are part of repeats
+3 nCount - Number of 'N' bases
+4 qNumInsert - Number of inserts in query
+5 qBaseInsert - Number of bases inserted in query
+6 tNumInsert - Number of inserts in target
+7 tBaseInsert - Number of bases inserted in target
+8 strand - '+' or '-' for query strand. For translated alignments, second '+'or '-' is for genomic strand
+9 qName - Query sequence name
+10 qSize - Query sequence size
+11 qStart - Alignment start position in query
+12 qEnd - Alignment end position in query
+13 tName - Target sequence name
+14 tSize - Target sequence size
+15 tStart - Alignment start position in target
+16 tEnd - Alignment end position in target
+17 blockCount - Number of blocks in the alignment (a block contains no gaps)
+18 blockSizes - Comma-separated list of sizes of each block
+19 qStarts - Comma-separated list of starting positions of each block in query
+20 tStarts - Comma-separated list of starting positions of each block in target
 """
 
 from __future__ import division
 
 import getopt
 import sys
+
+from itertools import izip
 
 import csv
 
@@ -43,6 +67,14 @@ def main(args):
         or not read_len):
         print >> sys.stderr, "missing"
         sys.exit(1)
+    with open(psl_file, 'r') as psl:
+        reader = csv.reader(psl, delimiter="\t")
+        for row in reader:
+            block_count = int(row[17])
+            align_len = 0
+            for block_size, _ in izip(row[18].split(","), xrange(block_count)):
+                align_len += int(block_size)
+            print align_len / read_len, block_count  
 
 if __name__ == '__main__':
     main(sys.argv[1:])
