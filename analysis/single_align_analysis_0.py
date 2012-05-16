@@ -35,9 +35,8 @@ class SingleAlign(object):
     here each reference chrom strand is 
     U00096 and not U00096.2
     """ 
-    def __init__(self, align):
-        # align is an alignment in HTSeq
-        self.align = align
+    def __init__(self, align_psl):
+        # align is an alignment in PSL
     
 class SingleContig(object):
 
