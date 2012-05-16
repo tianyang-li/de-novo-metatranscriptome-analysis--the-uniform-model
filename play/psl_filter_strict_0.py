@@ -57,14 +57,12 @@ def main(args):
     read_len = None
     id_prefix = None
     try:
-        opts, args = getopt.getopt(args, '', ["psl1=", "id-prefix=",
+        opts, args = getopt.getopt(args, '', ["psl1=",
                                               "psl2=", "read-len="])
     except getopt.GetoptError as err:
         print >> sys.stderr, str(err)
         sys.exit(1)
     for opt, arg in opts:
-        if opt == "--id-prefix":
-            id_prefix = arg
         if opt == "--psl1":
             psl1_file = arg
         if opt == "--psl2":
@@ -73,7 +71,6 @@ def main(args):
             read_len = int(arg)
     if (not psl1_file
         or not psl2_file
-        or not id_prefix
         or not read_len):
         print >> sys.stderr, "missing"
         sys.exit(1)
@@ -82,29 +79,23 @@ def main(args):
     good_id2 = set([])
     
     with open(psl1_file, 'r') as psl1:
-        with open(psl2_file, 'r') as psl2:
-            reader1 = csv.reader(psl1, delimiter="\t")
-            reader2 = csv.reader(psl2, delimiter="\t")
-            for row1, row2 in izip(reader1, reader2):
-                block_count_1 = int(row1[17])
-                block_count_2 = int(row2[17])
-                if block_count_1 == 1 and block_count_2 == 1:
-                    if (int(row1[18].split(",")[0]) == read_len and
-                        int(row2[18].split(",")[0]) == read_len):
-                        good_id1.add(row1[9])
-                        good_id2.add(row2[9])
-                        
-    fout_id1 = open("%s_1.ids" % id_prefix, 'w')
-    fout_id2 = open("%s_2.ids" % id_prefix, 'w')
+        reader1 = csv.reader(psl1, delimiter="\t")
+        for row1 in reader1:
+            block_count_1 = int(row1[17])
+            if (block_count_1 == 1 and 
+                int(row1[18].split(",")[0]) == read_len):
+                good_id1.add(row1[9][:-2])
+                
+    with open(psl2_file, 'r') as psl2:
+        reader2 = csv.reader(psl2, delimiter="\t")   
+        for row2 in reader2:
+            block_count_2 = int(row2[17])
+            if (block_count_2 == 1 and 
+                int(row2[18].split(",")[0]) == read_len):
+                good_id2.add(row2[9][:-2])
     
-    for read_id in good_id1:
-        fout_id1.write("%s\n" % read_id)
-    for read_id in good_id2:
-        fout_id2.write("%s\n" % read_id)                        
-    
-    fout_id1.close()
-    fout_id2.close()
-              
+    for good_id in good_id1 & good_id2:
+        print good_id 
 
 if __name__ == '__main__':
     main(sys.argv[1:])
