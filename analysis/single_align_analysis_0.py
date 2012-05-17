@@ -80,7 +80,7 @@ class SingleContig(SeqInterval):
         
     
     def uniform_pval(self, read_len, precision=0.01):
-        read_pos = [0] * (self.reads[-1].low - self.reads[0].low + 1)
+        read_pos = [0] * (self.reads[-1].high - self.reads[0].low + 1)
         for read in self.reads:
             read_pos[read.low - self.reads[0].low] += 1
         return single_uniform_contig_pval(read_pos, len(self.reads),
@@ -222,6 +222,8 @@ def main(args):
     
     for chrom in chroms.itervalues():
         chrom.assemble_contigs(d_max)
+        for contig in chrom.contigs:
+            print contig.est_len(read_len), contig.uniform_pval(read_len)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
