@@ -291,6 +291,16 @@ def main(args):
                 print est_len, coverage, pval,
                 print found_iv.low, found_iv.high - found_iv.low + 1,
                 print SeqOverlapType.overlap_type(contig, found_iv)
+                """
+                0  contig.low
+                1  contig.high - contig.low + 1
+                2  est_len
+                3  coverage
+                4  pval
+                5  found_iv.low
+                6  found_iv.high - found_iv.low + 1
+                7  SeqOverlapType.overlap_type(contig, found_iv)
+                """
 
 if __name__ == '__main__':
     main(sys.argv[1:])
