@@ -15,30 +15,6 @@
 #
 #  You should have received a copy of the GNU General Public License
 
-"""
-0 matches - Number of bases that match that aren't repeats
-1 misMatches - Number of bases that don't match
-2 repMatches - Number of bases that match but are part of repeats
-3 nCount - Number of 'N' bases
-4 qNumInsert - Number of inserts in query
-5 qBaseInsert - Number of bases inserted in query
-6 tNumInsert - Number of inserts in target
-7 tBaseInsert - Number of bases inserted in target
-8 strand - '+' or '-' for query strand. For translated alignments, second '+'or '-' is for genomic strand
-9 qName - Query sequence name
-10 qSize - Query sequence size
-11 qStart - Alignment start position in query
-12 qEnd - Alignment end position in query
-13 tName - Target sequence name
-14 tSize - Target sequence size
-15 tStart - Alignment start position in target
-16 tEnd - Alignment end position in target
-17 blockCount - Number of blocks in the alignment (a block contains no gaps)
-18 blockSizes - Comma-separated list of sizes of each block
-19 qStarts - Comma-separated list of starting positions of each block in query
-20 tStarts - Comma-separated list of starting positions of each block in target
-"""
-
 from __future__ import division
 
 import getopt
@@ -92,10 +68,10 @@ class SingleChrom(object):
     """
     
     def __init__(self, embl_rec):
-        self.get_embl_features(embl_rec)    
+        self._get_embl_features(embl_rec)    
         self.aligns = []
         
-    def get_embl_features(self, embl_rec):
+    def _get_embl_features(self, embl_rec):
         self.features = []
         bad_features = set(["repeat_region", "rep_origin",
                             "misc_feature",
@@ -105,6 +81,26 @@ class SingleChrom(object):
                 self.features.append(FeatureInterval(feat.location.start.position,
                                                     feat.location.end.position - 1))
         self.features = sorted(set(self.features), cmp=interval_cmp)
+        self._build_feature_tree()
+    
+    def _build_feature_tree(self):
+        def set_min_max(l, h):
+            x = int((l + h) / 2)
+            if l < x:
+                tmp_min, tmp_max = set_min_max(l, x - 1)
+                if tmp_min < self.features[x].i_min:
+                    self.features[x].i_min = tmp_min
+                if tmp_max > self.features[x].i_max:
+                    self.features[x].i_max = tmp_max
+            if h > x:
+                tmp_min, tmp_max = set_min_max(x + 1, h)
+                if tmp_min < self.features[x].i_min:
+                    self.features[x].i_min = tmp_min
+                if tmp_max > self.features[x].i_max:
+                    self.features[x].i_max = tmp_max
+            return self.features[x].i_min, self.features[x].i_max
+        
+        set_min_max(0, len(self.features) - 1)
 
 def main(args):
     embl_file = None
@@ -138,6 +134,40 @@ def main(args):
     chroms = {}
     for embl in SeqIO.parse(embl_file, 'embl'):
         chroms[embl.name] = SingleChrom(embl)
+        
+    with open(psl_file) as psl_in:
+        for line in psl_in:
+            row = line.strip().split("\t")
+            """
+            0 matches - Number of bases that match that aren't repeats
+            1 misMatches - Number of bases that don't match
+            2 repMatches - Number of bases that match but are part of repeats
+            3 nCount - Number of 'N' bases
+            4 qNumInsert - Number of inserts in query
+            5 qBaseInsert - Number of bases inserted in query
+            6 tNumInsert - Number of inserts in target
+            7 tBaseInsert - Number of bases inserted in target
+            8 strand - '+' or '-' for query strand. For translated alignments, 
+                second '+'or '-' is for genomic strand
+            9 qName - Query sequence name
+            10 qSize - Query sequence size
+            11 qStart - Alignment start position in query
+            12 qEnd - Alignment end position in query
+            13 tName - Target sequence name
+            14 tSize - Target sequence size
+            15 tStart - Alignment start position in target
+            16 tEnd - Alignment end position in target
+            17 blockCount - Number of blocks in the alignment (a block 
+                contains no gaps)
+            18 blockSizes - Comma-separated list of sizes of each block
+            19 qStarts - Comma-separated list of starting positions of 
+                each block in query
+            20 tStarts - Comma-separated list of starting positions of 
+                each block in target
+            """
+            if int(row[17]) and int(row[18].split(",")[0]):
+                chroms[row[13]].aligns.append(SeqInterval(int(row[15]),
+                                                          int(row[16]) - 1))
 
 if __name__ == '__main__':
     main(sys.argv[1:])
