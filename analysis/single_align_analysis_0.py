@@ -50,11 +50,9 @@ class SeqInterval(object):
     """
     0 based inclusive
     """
-    def __init__(self, low, high, strand=None):
+    def __init__(self, low, high):
         self.low = low  # integer
         self.high = high  # integer
-        if strand:
-            self.strand = strand  # "+" or "-"
 
 class SingleAlign(object, SeqInterval):
     """
@@ -66,6 +64,7 @@ class SingleAlign(object, SeqInterval):
     embl.name (not embl.id)
     """ 
     def __init__(self, row):
+        pass  # i don't need this right now
         # align is an alignment in PSL
         
     
