@@ -26,6 +26,34 @@ from single_len_est_0 import single_est_len
 
 from short_contig_analysis_0 import single_uniform_contig_pval
 
+class SeqOverlapType(object):
+    #      [ .. q .. ]
+    #   [ .... s .... ]
+    Q_IN_S = 1
+    
+    #     [ ..... q .... ]
+    #           [ .... s .......]
+    # or the other side
+    Q_OVERLAP_S = 2
+    
+    #  [ ......... q ............ ]
+    #       [ ....  s ..... ]
+    Q_COVER_S = 3
+    
+    @staticmethod
+    def overlap_type(q_iv, s_iv):
+        if q_iv.low >= s_iv.low:
+            if q_iv.high <= s_iv.high:
+                return SeqOverlapType.Q_IN_S
+            
+            return SeqOverlapType.Q_OVERLAP_S
+        
+        if q_iv.high <= s_iv.high:
+            return SeqOverlapType.Q_OVERLAP_S
+        
+        return SeqOverlapType.Q_COVER_S
+    
+    
 def interval_cmp(iv1, iv2):
     """
     <0 if iv1 < iv2
@@ -56,6 +84,13 @@ class SeqInterval(object):
     def __cmp__(self, other):
         return interval_cmp(self, other)
     
+    @staticmethod
+    def overlap(iv1, iv2):
+        if (iv1.low > iv2.high
+            or iv1.high < iv2.low):
+            return False
+        return True
+    
 
 class FeatureInterval(SeqInterval):
     def __init__(self, low, high):
@@ -72,7 +107,11 @@ class SingleContig(SeqInterval):
         self.reads = c_reads
         super(SingleContig, self).__init__(c_reads[0].low,
                                            c_reads[-1].high)
-        
+    
+    
+    def coverage(self, read_len):
+        return len(self.reads) * read_len / (self.reads[-1].high - self.reads[0].low + 1)
+    
     
     def est_len(self, read_len):
         return single_est_len(self.high - self.low + 1,
@@ -151,7 +190,26 @@ class SingleChrom(object):
             return self.features[x].i_min, self.features[x].i_max
         
         set_min_max(0, len(self.features) - 1)
+    
+    
+    def iv_find_features(self, q_iv):
+        def find_iv(l, h):
+            x = int((l + h) / 2)
+            if (self.features[x].i_max < q_iv.low
+                or self.features[x].i_min > q_iv.high):
+                return []
+            if SeqInterval.overlap(self.features[x], q_iv):
+                found_ivs = [self.features[x]]
+            else:
+                found_ivs = []
+            if l < x:
+                found_ivs.extend(find_iv(l, x - 1))
+            if h > x:
+                found_ivs.extend(find_iv(x + 1, h))
+            return found_ivs
         
+        return find_iv(0, len(self.features) - 1)
+            
 
 def main(args):
     embl_file = None
@@ -216,14 +274,23 @@ def main(args):
             20 tStarts - Comma-separated list of starting positions of 
                 each block in target
             """
-            if int(row[17]) and int(row[18].split(",")[0]):
+            if (int(row[17]) 
+                and int(row[18].split(",")[0]) == read_len):
                 chroms[row[13]].aligns.append(SeqInterval(int(row[15]),
                                                           int(row[16]) - 1))
     
     for chrom in chroms.itervalues():
         chrom.assemble_contigs(d_max)
         for contig in chrom.contigs:
-            print contig.est_len(read_len), contig.uniform_pval(read_len)
+            coverage = contig.coverage(read_len)
+            est_len = contig.est_len(read_len)
+            pval = contig.uniform_pval(read_len)
+            
+            for found_iv in chrom.iv_find_features(contig):
+                print contig.low, contig.high - contig.low + 1,
+                print est_len, coverage, pval,
+                print found_iv.low, found_iv.high - found_iv.low + 1,
+                print SeqOverlapType.overlap_type(contig, found_iv)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
