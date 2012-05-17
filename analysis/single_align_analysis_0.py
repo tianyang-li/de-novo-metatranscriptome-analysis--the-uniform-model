@@ -46,6 +46,16 @@ import sys
 
 from Bio import SeqIO
 
+def interval_cmp(iv1, iv2):
+    """
+    <0 if iv1 < iv2
+    =0 if iv1 == iv2
+    >0 if iv1 > iv2
+    """
+    if iv1.low == iv2.low:
+        return iv1.high - iv2.high
+    return iv1.low - iv2.low
+
 class SeqInterval(object):
     """
     0 based inclusive
@@ -59,6 +69,9 @@ class SeqInterval(object):
 
     def __eq__(self, other):
         return self.low == other.low and self.high == other.high
+    
+    def __cmp__(self, other):
+        return interval_cmp(self, other)
 
 def FeatureInterval(object, SeqInterval):
     def __init__(self, low, high):
