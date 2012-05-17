@@ -73,7 +73,7 @@ class SeqInterval(object):
     def __cmp__(self, other):
         return interval_cmp(self, other)
 
-def FeatureInterval(object, SeqInterval):
+class FeatureInterval(SeqInterval):
     def __init__(self, low, high):
         super(FeatureInterval, self).__init__(low, high)
         self.i_min = low
@@ -81,6 +81,7 @@ def FeatureInterval(object, SeqInterval):
 
 class SingleContig(object):
     def __init__(self):
+        pass #TODO:
 
 class SingleChrom(object):
     """
@@ -91,15 +92,16 @@ class SingleChrom(object):
     """
     
     def __init__(self, embl_rec):
-        self.get_embl_features(embl_rec)
-        
+        self.get_embl_features(embl_rec)    
         self.aligns = []
         
     def get_embl_features(self, embl_rec):
         self.features = []
-        type_source = "source"
+        bad_features = set(["repeat_region", "rep_origin",
+                            "misc_feature",
+                            "source", "gap", "mobile_element"])
         for feat in embl_rec.features:
-            if feat.type != type_source:
+            if feat.type not in bad_features:
                 self.features.append(FeatureInterval(feat.location.start.position,
                                                     feat.location.end.position - 1))
         self.features = sorted(set(self.features), cmp=interval_cmp)
