@@ -55,9 +55,15 @@ class FeatureInterval(SeqInterval):
         self.i_min = low
         self.i_max = high
 
-class SingleContig(object):
-    def __init__(self):
-        pass #TODO:
+class SingleContig(SeqInterval):
+    def __init__(self, c_reads):
+        """
+        c_reads is a list that contains all the reads (SeqInterval)
+        that form this contig
+        """
+        self.reads = c_reads
+        super(SingleContig, self).__init__(c_reads[0].i_min,
+                                           c_reads[-1].i_max)
 
 class SingleChrom(object):
     """
@@ -66,6 +72,12 @@ class SingleChrom(object):
     
     embl.name (not embl.id)
     """
+    
+    def sort_aligns(self):
+        self.aligns = sorted(self.aligns, cmp=interval_cmp)
+    
+    def assemble_contigs(self, read_len, d_max):
+        self.contigs = []
     
     def __init__(self, embl_rec):
         self._get_embl_features(embl_rec)    
@@ -168,6 +180,10 @@ def main(args):
             if int(row[17]) and int(row[18].split(",")[0]):
                 chroms[row[13]].aligns.append(SeqInterval(int(row[15]),
                                                           int(row[16]) - 1))
+    
+    for chrom in chroms.itervalues():
+        chrom.sort_aligns()
+        chrom.assemble_contigs(read_len, d_max)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
