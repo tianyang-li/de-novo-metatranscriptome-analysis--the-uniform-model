@@ -100,7 +100,8 @@ class SingleChrom(object):
         type_source = "source"
         for feat in embl_rec.features:
             if feat.type != type_source:
-                self.features.append(FeatureInterval(feat.location.start.position, feat.location.end.position - 1))
+                self.features.append(FeatureInterval(feat.location.start.position,
+                                                    feat.location.end.position - 1))
         self.features = sorted(set(self.features), cmp=interval_cmp)
 
 def main(args):
@@ -108,20 +109,13 @@ def main(args):
     psl_file = None
     read_len = None
     kmer = None
-    good_id_file = None
     try:
         opts, args = getopt.getopt(args, '', ["embl=", "psl=",
-                                              "good-id",
                                               "read-len=", "kmer="])
     except getopt.GetoptError as err:
         print >> sys.stderr, str(err)
         sys.exit(1)
     for opt, arg in opts:
-        if opt == "--good-id":
-            # this is only the prefix of reads
-            # for example XXXX/1
-            # will only be XXXX here
-            good_id_file = arg
         if opt == "--read-len":
             read_len = int(arg)
         if opt == "--embl":
@@ -132,7 +126,6 @@ def main(args):
             kmer = int(arg)
     if (not embl_file
         or not read_len
-        or not good_id_file
         or not kmer
         or not psl_file):
         print >> sys.stderr, "missing"
@@ -140,14 +133,9 @@ def main(args):
     
     d_max = read_len - kmer + 1
     
-    good_ids = set([])
-    with open(good_id_file, 'r') as fin:
-        for line in fin:
-            good_ids.add(line.strip())
-    
-    embls = {}
+    chroms = {}
     for embl in SeqIO.parse(embl_file, 'embl'):
-        embls[embl.name] = embl
+        chroms[embl.name] = SingleChrom(embl)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
