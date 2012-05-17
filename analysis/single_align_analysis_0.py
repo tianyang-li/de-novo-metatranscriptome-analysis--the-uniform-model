@@ -54,20 +54,12 @@ class SeqInterval(object):
         self.low = low  # integer
         self.high = high  # integer
 
-class SingleAlign(object, SeqInterval):
-    """
-    here each reference chrom strand is 
-    U00096 and not U00096.2
-    
-    only perfect alignments are considered here right now
-    
-    embl.name (not embl.id)
-    """ 
-    def __init__(self, row):
-        pass  # i don't need this right now
-        # align is an alignment in PSL
-        
-    
+    def __hash__(self):
+        return hash((self.low, self.high))
+
+    def __eq__(self, other):
+        return self.low == other.low and self.high == other.high
+
 class SingleContig(object):
     def __init__(self):
 
@@ -84,6 +76,9 @@ class SingleChrom(object):
         self.aligns = []
         
     def get_embl_features(self, embl_rec):
+        self.features = []
+        type_source = "source"
+
 
 def main(args):
     embl_file = None
@@ -133,3 +128,4 @@ def main(args):
 
 if __name__ == '__main__':
     main(sys.argv[1:])
+
