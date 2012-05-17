@@ -43,15 +43,19 @@ class SeqInterval(object):
     def __init__(self, low, high):
         self.low = low  # integer
         self.high = high  # integer
+        
 
     def __hash__(self):
         return hash((self.low, self.high))
+    
 
     def __eq__(self, other):
         return self.low == other.low and self.high == other.high
     
+    
     def __cmp__(self, other):
         return interval_cmp(self, other)
+    
 
 class FeatureInterval(SeqInterval):
     def __init__(self, low, high):
@@ -68,10 +72,12 @@ class SingleContig(SeqInterval):
         self.reads = c_reads
         super(SingleContig, self).__init__(c_reads[0].low,
                                            c_reads[-1].high)
+        
     
     def est_len(self, read_len):
         return single_est_len(self.high - self.low + 1,
                               len(self.reads), read_len)
+        
     
     def uniform_pval(self, read_len, precision=0.01):
         read_pos = [0] * (self.reads[-1].low - self.reads[0].low + 1)
@@ -79,6 +85,7 @@ class SingleContig(SeqInterval):
             read_pos[read.low - self.reads[0].low] += 1
         return single_uniform_contig_pval(read_pos, len(self.reads),
                                           read_len, precision)
+        
 
 class SingleChrom(object):
     """
@@ -103,10 +110,15 @@ class SingleChrom(object):
                 cur_contig = [align]
             prev_align = align
         self.contigs.append(SingleContig(cur_contig))
+        
+        self.contigs = filter(lambda contig: len(contig.reads) >= 3,
+                              self.contigs)
+        
     
     def __init__(self, embl_rec):
         self._get_embl_features(embl_rec)    
         self.aligns = []
+        
         
     def _get_embl_features(self, embl_rec):
         self.features = []
@@ -119,6 +131,7 @@ class SingleChrom(object):
                                                     feat.location.end.position - 1))
         self.features = sorted(set(self.features), cmp=interval_cmp)
         self._build_feature_tree()
+        
     
     def _build_feature_tree(self):
         def set_min_max(l, h):
@@ -138,6 +151,7 @@ class SingleChrom(object):
             return self.features[x].i_min, self.features[x].i_max
         
         set_min_max(0, len(self.features) - 1)
+        
 
 def main(args):
     embl_file = None
