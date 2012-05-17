@@ -101,7 +101,7 @@ class SingleChrom(object):
         for feat in embl_rec.features:
             if feat.type != type_source:
                 self.features.append(FeatureInterval(feat.location.start.position, feat.location.end.position - 1))
-        sorted(set(self.features), cmp=interval_cmp)
+        self.features = sorted(set(self.features), cmp=interval_cmp)
 
 def main(args):
     embl_file = None
