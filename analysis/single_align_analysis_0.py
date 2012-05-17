@@ -22,6 +22,10 @@ import sys
 
 from Bio import SeqIO
 
+from single_len_est_0 import single_est_len
+
+from short_contig_analysis_0 import single_uniform_contig_pval
+
 def interval_cmp(iv1, iv2):
     """
     <0 if iv1 < iv2
@@ -64,6 +68,17 @@ class SingleContig(SeqInterval):
         self.reads = c_reads
         super(SingleContig, self).__init__(c_reads[0].low,
                                            c_reads[-1].high)
+    
+    def est_len(self, read_len):
+        return single_est_len(self.high - self.low + 1,
+                              len(self.reads), read_len)
+    
+    def uniform_pval(self, read_len, precision=0.01):
+        read_pos = [0] * (self.reads[-1].low - self.reads[0].low + 1)
+        for read in self.reads:
+            read_pos[read.low - self.reads[0].low] += 1
+        return single_uniform_contig_pval(read_pos, len(self.reads),
+                                          read_len, precision)
 
 class SingleChrom(object):
     """

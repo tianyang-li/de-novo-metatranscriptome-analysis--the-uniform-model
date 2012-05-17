@@ -56,7 +56,7 @@ def single_contig_calc_t_stat(rp, eff_len, n_reads):
                 pos2 += 1
     return t_stat
 
-def single_uniform_contig_pval(read_pos, n_reads, read_len, precision):
+def single_uniform_contig_pval(read_pos, n_reads, read_len, precision=0.01):
     # n_reads >= 3
     """
     the test statistic chosen here is similar
