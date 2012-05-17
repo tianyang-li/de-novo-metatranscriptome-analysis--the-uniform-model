@@ -60,6 +60,12 @@ class SeqInterval(object):
     def __eq__(self, other):
         return self.low == other.low and self.high == other.high
 
+def FeatureInterval(object, SeqInterval):
+    def __init__(self, low, high):
+        super(FeatureInterval, self).__init__(low, high)
+        self.i_min = low
+        self.i_max = high
+
 class SingleContig(object):
     def __init__(self):
 
@@ -70,6 +76,7 @@ class SingleChrom(object):
     
     embl.name (not embl.id)
     """
+    
     def __init__(self, embl_rec):
         self.get_embl_features(embl_rec)
         
