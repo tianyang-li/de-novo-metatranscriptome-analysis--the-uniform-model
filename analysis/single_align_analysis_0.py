@@ -62,8 +62,8 @@ class SingleContig(SeqInterval):
         that form this contig
         """
         self.reads = c_reads
-        super(SingleContig, self).__init__(c_reads[0].i_min,
-                                           c_reads[-1].i_max)
+        super(SingleContig, self).__init__(c_reads[0].low,
+                                           c_reads[-1].high)
 
 class SingleChrom(object):
     """
@@ -73,11 +73,21 @@ class SingleChrom(object):
     embl.name (not embl.id)
     """
     
-    def sort_aligns(self):
+    def assemble_contigs(self, d_max):
+        if not self.aligns:
+            return
         self.aligns = sorted(self.aligns, cmp=interval_cmp)
-    
-    def assemble_contigs(self, read_len, d_max):
         self.contigs = []
+        cur_contig = [self.aligns[0]]
+        prev_align = self.aligns[0]
+        for align in self.aligns[1:]:
+            if align.low - prev_align.low <= d_max:
+                cur_contig.append(align)
+            else:
+                self.contigs.append(SingleContig(cur_contig))
+                cur_contig = [align]
+            prev_align = align
+        self.contigs.append(SingleContig(cur_contig))
     
     def __init__(self, embl_rec):
         self._get_embl_features(embl_rec)    
@@ -182,8 +192,7 @@ def main(args):
                                                           int(row[16]) - 1))
     
     for chrom in chroms.itervalues():
-        chrom.sort_aligns()
-        chrom.assemble_contigs(read_len, d_max)
+        chrom.assemble_contigs(d_max)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
