@@ -22,6 +22,13 @@ from Bio import SeqIO
 
 from single_align_analysis_0 import SeqInterval
 
+class PairedAlign(object):
+    def __init__(self):
+        #TODO:
+
+def psl_paired_align(psl1_file, psl2_file):
+    #TODO:
+
 def main(args):
     psl1_file = None
     psl2_file = None
