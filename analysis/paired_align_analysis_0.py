@@ -23,8 +23,9 @@ from Bio import SeqIO
 def main(args):
     psl1_file = None
     psl2_file = None
+    embl_file = None
     try:
-        opts, args = getopt.getopt(args, '', ["psl1=", "psl2="])
+        opts, args = getopt.getopt(args, '', ["psl1=", "psl2=", "embl="])
     except getopt.GetoptError as err:
         print >> sys.stderr, str(err)
         sys.exit(1)
@@ -33,7 +34,10 @@ def main(args):
             psl1_file = arg
         if opt == "--psl2":
             psl2_file = arg
+        if opt == "--embl":
+            embl_file = arg
     if (not psl1_file
+        or not embl_file
         or not psl2_file):
         print >> sys.stderr, "missing"
         sys.exit(1) 
