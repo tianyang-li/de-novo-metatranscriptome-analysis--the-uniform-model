@@ -110,7 +110,8 @@ class SingleContig(SeqInterval):
     
     
     def coverage(self, read_len):
-        return len(self.reads) * read_len / (self.reads[-1].high - self.reads[0].low + 1)
+        return len(self.reads) * read_len / (self.reads[-1].high 
+                                             - self.reads[0].low + 1)
     
     
     def est_len(self, read_len):
