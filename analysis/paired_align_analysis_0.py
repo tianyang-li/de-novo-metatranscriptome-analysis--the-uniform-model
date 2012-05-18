@@ -20,6 +20,8 @@ import sys
 
 from Bio import SeqIO
 
+from single_align_analysis_0 import SeqInterval
+
 def main(args):
     psl1_file = None
     psl2_file = None

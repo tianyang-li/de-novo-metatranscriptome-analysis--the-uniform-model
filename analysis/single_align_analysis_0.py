@@ -53,16 +53,6 @@ class SeqOverlapType(object):
         
         return SeqOverlapType.Q_COVER_S
     
-    
-def interval_cmp(iv1, iv2):
-    """
-    <0 if iv1 < iv2
-    =0 if iv1 == iv2
-    >0 if iv1 > iv2
-    """
-    if iv1.low == iv2.low:
-        return iv1.high - iv2.high
-    return iv1.low - iv2.low
 
 class SeqInterval(object):
     """
@@ -82,7 +72,7 @@ class SeqInterval(object):
     
     
     def __cmp__(self, other):
-        return interval_cmp(self, other)
+        return SeqInterval.interval_cmp(self, other)
     
     @staticmethod
     def overlap(iv1, iv2):
@@ -91,6 +81,17 @@ class SeqInterval(object):
             return False
         return True
     
+    @staticmethod
+    def interval_cmp(iv1, iv2):
+        """
+        <0 if iv1 < iv2
+        =0 if iv1 == iv2
+        >0 if iv1 > iv2
+        """
+        if iv1.low == iv2.low:
+            return iv1.high - iv2.high
+        return iv1.low - iv2.low
+        
 
 class FeatureInterval(SeqInterval):
     def __init__(self, low, high):
@@ -145,7 +146,7 @@ class SingleChrom(object):
     def assemble_contigs(self, d_max):
         if not self.aligns:
             return
-        self.aligns = sorted(self.aligns, cmp=interval_cmp)
+        self.aligns = sorted(self.aligns, cmp=SeqInterval.interval_cmp)
         self.contigs = []
         cur_contig = [self.aligns[0]]
         prev_align = self.aligns[0]
@@ -177,7 +178,7 @@ class SingleChrom(object):
             if feat.type not in bad_features:
                 self.features.append(FeatureInterval(feat.location.start.position,
                                                     feat.location.end.position - 1))
-        self.features = sorted(set(self.features), cmp=interval_cmp)
+        self.features = sorted(set(self.features), cmp=SeqInterval.interval_cmp)
         self._build_feature_tree()
         
     
