@@ -65,7 +65,8 @@ def single_uniform_contig_pval(read_pos, n_reads, read_len, precision=0.01):
     
     eff_len = len(read_pos) - read_len + 1
     
-    sim_runs = int(2.1910133173369407 / precision ** 2) + 1
+    # sim_runs = int(2.1910133173369407 / precision ** 2) + 1
+    sim_runs = 1000
     
     sim_t_stats = []
     for _ in xrange(sim_runs):

@@ -134,6 +134,13 @@ class SingleChrom(object):
     embl.name (not embl.id)
     """
     
+    def get_GC(self, iv):
+        GC = 0
+        for nuc in self.seq_str[iv.low:iv.high + 1]:
+            if nuc == "G" or nuc == "C":
+                GC += 1
+        return GC / (iv.high - iv.low + 1)
+    
     def assemble_contigs(self, d_max):
         if not self.aligns:
             return
@@ -157,6 +164,7 @@ class SingleChrom(object):
     def __init__(self, embl_rec):
         self._get_embl_features(embl_rec)    
         self.aligns = []
+        self.seq_str = str(embl_rec.seq).upper()
         
         
     def _get_embl_features(self, embl_rec):
@@ -290,7 +298,8 @@ def main(args):
                 print contig.low, contig.high - contig.low + 1,
                 print est_len, coverage, pval,
                 print found_iv.low, found_iv.high - found_iv.low + 1,
-                print SeqOverlapType.overlap_type(contig, found_iv)
+                print SeqOverlapType.overlap_type(contig, found_iv),
+                print chrom.get_GC(contig)
                 """
                 0  contig.low
                 1  contig.high - contig.low + 1
@@ -300,6 +309,7 @@ def main(args):
                 5  found_iv.low
                 6  found_iv.high - found_iv.low + 1
                 7  SeqOverlapType.overlap_type(contig, found_iv)
+                8  chrom.get_GC(contig)
                 """
 
 if __name__ == '__main__':
