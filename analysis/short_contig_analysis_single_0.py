@@ -31,7 +31,7 @@ from single_len_est_0 import single_est_len
 
 def single_contig_calc_t_stat(rp, eff_len, n_reads):
     # n_reads >= 3
-    av_space = len(rp) / (n_reads - 1)
+    av_space = (len(rp) - 1) / (n_reads - 1)
     t_stat = 0
     pos1 = 0
     pos2 = None

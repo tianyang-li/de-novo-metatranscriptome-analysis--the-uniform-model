@@ -23,8 +23,12 @@ from Bio import SeqIO
 from single_align_analysis_0 import SeqInterval
 
 class PairedAlign(object):
-    def __init__(self):
-        #TODO:
+    """
+    0 based inclusive
+    """
+    def __init__(self, low1, high1, low2, high2):
+        self.read1 = SeqInterval(low1, high1)
+        self.read2 = SeqInterval(low2, high2)
 
 def psl_paired_align(psl1_file, psl2_file):
     #TODO:
