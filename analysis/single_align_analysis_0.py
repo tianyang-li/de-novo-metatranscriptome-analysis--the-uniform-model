@@ -24,7 +24,7 @@ from Bio import SeqIO
 
 from single_len_est_0 import single_est_len
 
-from short_contig_analysis_0 import single_uniform_contig_pval
+from short_contig_analysis_single_0 import single_uniform_contig_pval
 
 class SeqOverlapType(object):
     #      [ .. q .. ]
