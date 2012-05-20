@@ -26,7 +26,7 @@ from single_len_est_0 import single_est_len
 
 from short_contig_analysis_single_0 import single_uniform_contig_pval
 
-from align_analysis_utils_0 import SeqOverlapType, SeqInterval, FeatureInterval, Chrom
+from align_analysis_utils_0 import SeqOverlapType, SeqInterval, Chrom
 
 
 class SingleContig(SeqInterval):
