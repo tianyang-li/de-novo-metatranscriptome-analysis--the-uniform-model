@@ -94,10 +94,11 @@ class SeqInterval(object):
         
 
 class FeatureInterval(SeqInterval):
-    def __init__(self, low, high):
+    def __init__(self, low, high, type):
         super(FeatureInterval, self).__init__(low, high)
         self.i_min = low
         self.i_max = high
+        self.type = type
 
 class SingleContig(SeqInterval):
     def __init__(self, c_reads):
@@ -177,7 +178,8 @@ class SingleChrom(object):
         for feat in embl_rec.features:
             if feat.type not in bad_features:
                 self.features.append(FeatureInterval(feat.location.start.position,
-                                                    feat.location.end.position - 1))
+                                                    feat.location.end.position - 1,
+                                                    feat.type))
         self.features = sorted(set(self.features), cmp=SeqInterval.interval_cmp)
         self._build_feature_tree()
         
@@ -292,27 +294,14 @@ def main(args):
     for chrom in chroms.itervalues():
         chrom.assemble_contigs(d_max)
         for contig in chrom.contigs:
-            coverage = contig.coverage(read_len)
             est_len = contig.est_len(read_len)
-            pval = contig.uniform_pval(read_len)
             
             for found_iv in chrom.iv_find_features(contig):
                 print contig.low, contig.high - contig.low + 1,
-                print est_len, coverage, pval,
+                print est_len,
+                print found_iv.type,
                 print found_iv.low, found_iv.high - found_iv.low + 1,
                 print SeqOverlapType.overlap_type(contig, found_iv),
-                print chrom.get_GC(contig)
-                """
-                0  contig.low
-                1  contig.high - contig.low + 1
-                2  est_len
-                3  coverage
-                4  pval
-                5  found_iv.low
-                6  found_iv.high - found_iv.low + 1
-                7  SeqOverlapType.overlap_type(contig, found_iv)
-                8  chrom.get_GC(contig)
-                """
 
 if __name__ == '__main__':
     main(sys.argv[1:])

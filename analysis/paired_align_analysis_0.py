@@ -31,6 +31,11 @@ class PairedAlign(object):
         self.read2 = SeqInterval(low2, high2)
 
 def psl_paired_align(psl1_file, psl2_file):
+    """
+    only consider pefectly aligned pairs
+    """
+    pair1 = {}
+    pair2 = {}
     #TODO:
 
 def main(args):
