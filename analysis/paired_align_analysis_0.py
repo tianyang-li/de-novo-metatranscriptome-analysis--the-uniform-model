@@ -20,7 +20,7 @@ import sys
 
 from Bio import SeqIO
 
-from single_align_analysis_0 import SeqInterval
+from align_analysis_utils_0 import SeqInterval
 
 class PairedAlign(object):
     """
@@ -34,8 +34,15 @@ def psl_paired_align(psl1_file, psl2_file):
     """
     only consider pefectly aligned pairs
     """
+    def build_pair(pair, psl_file):
+        with open(psl_file, 'r') as psl:
+            for line in psl:
+                #TODO:
+    
     pair1 = {}
+    build_pair(pair1, psl1_file)
     pair2 = {}
+    build_pair(pair2, psl2_file)
     #TODO:
 
 def main(args):

@@ -56,6 +56,20 @@ class SingleContig(SeqInterval):
             read_pos[read.low - self.reads[0].low] += 1
         return single_uniform_contig_pval(read_pos, len(self.reads),
                                           read_len, precision)
+    
+    
+    def max_coverage(self):
+        cur_end = 0
+        cur_cover = 1
+        max_cover = 1
+        for cur_read in self.reads[1:]:
+            while self.reads[cur_end].high < cur_read.low:
+                cur_cover -= 1
+                cur_end += 1
+            cur_cover += 1
+            if cur_cover > max_cover:
+                max_cover = cur_cover
+        return max_cover
         
 
 class SingleChrom(Chrom):
@@ -163,10 +177,10 @@ def main(args):
         chrom.assemble_contigs(d_max)
         for contig in chrom.contigs:
             est_len = contig.est_len(read_len)
-            
+            cov_ratio = contig.max_coverage() / contig.coverage(read_len)
             for found_iv in chrom.iv_find_features(contig):
                 print contig.low, contig.high - contig.low + 1,
-                print est_len,
+                print est_len, cov_ratio,
                 print found_iv.type,
                 print found_iv.low, found_iv.high - found_iv.low + 1,
                 print SeqOverlapType.overlap_type(contig, found_iv)
