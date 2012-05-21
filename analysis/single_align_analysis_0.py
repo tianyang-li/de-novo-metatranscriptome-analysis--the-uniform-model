@@ -177,13 +177,23 @@ def main(args):
         chrom.assemble_contigs(d_max)
         for contig in chrom.contigs:
             est_len = contig.est_len(read_len)
-            cov_ratio = contig.max_coverage() / contig.coverage(read_len)
+            cov_diff = contig.max_coverage() - contig.coverage(read_len)
             for found_iv in chrom.iv_find_features(contig):
                 print contig.low, contig.high - contig.low + 1,
-                print est_len, cov_ratio,
+                print est_len, cov_diff,
                 print found_iv.type,
                 print found_iv.low, found_iv.high - found_iv.low + 1,
                 print SeqOverlapType.overlap_type(contig, found_iv)
+                """
+                0  contig.low
+                1  contig.high - contig.low + 1
+                2  est_len
+                3  cov_diff
+                4  found_iv.type
+                5  found_iv.low
+                6  found_iv.high - found_iv.low + 1
+                7  overlap_type
+                """
 
 if __name__ == '__main__':
     main(sys.argv[1:])
