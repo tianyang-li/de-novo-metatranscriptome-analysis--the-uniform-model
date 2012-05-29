@@ -70,6 +70,13 @@ class SingleContig(SeqInterval):
             if cur_cover > max_cover:
                 max_cover = cur_cover
         return max_cover
+    
+    
+    def nuc_coverage(self):
+        """
+        return a list of the coverage of each nuc in sequence 
+        """ 
+        
         
 
 class SingleChrom(Chrom):
