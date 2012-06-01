@@ -28,6 +28,7 @@ from short_contig_analysis_single_0 import single_uniform_contig_pval
 
 from align_analysis_utils_0 import SeqOverlapType, SeqInterval, Chrom
 
+from general_util import median
 
 class SingleContig(SeqInterval):
     def __init__(self, c_reads):
@@ -76,7 +77,11 @@ class SingleContig(SeqInterval):
         """
         return a list of the coverage of each nuc in sequence 
         """ 
-        
+        nuc_cov = []
+        cur_nuc = 0
+        cur_cov = 1
+        #TODO:
+        return nuc_cov
         
 
 class SingleChrom(Chrom):
@@ -183,6 +188,7 @@ def main(args):
     for chrom in chroms.itervalues():
         chrom.assemble_contigs(d_max)
         for contig in chrom.contigs:
+            #TODO: try cov_max - cov_median
             est_len = contig.est_len(read_len)
             cov_diff = contig.max_coverage() - contig.coverage(read_len)
             for found_iv in chrom.iv_find_features(contig):
