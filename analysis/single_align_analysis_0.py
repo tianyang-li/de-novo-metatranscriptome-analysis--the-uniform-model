@@ -28,7 +28,7 @@ from short_contig_analysis_single_0 import single_uniform_contig_pval
 
 from align_analysis_utils_0 import SeqOverlapType, SeqInterval, Chrom
 
-from general_util import select
+from general_util import median
 
 class SingleContig(SeqInterval):
     def __init__(self, c_reads):

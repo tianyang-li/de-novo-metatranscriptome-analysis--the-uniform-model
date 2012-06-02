@@ -15,6 +15,8 @@
 #
 #  You should have received a copy of the GNU General Public License
 
+from __future__ import division
+
 from random import randint
 
 def select(a, k):
@@ -49,4 +51,7 @@ def select(a, k):
             k -= piv_dist
             cur_low = piv + 1
     
-        
+def median(a):
+    return select(a, int(len(a) / 2))
+    
+            
