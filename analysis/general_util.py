@@ -15,5 +15,38 @@
 #
 #  You should have received a copy of the GNU General Public License
 
-def median(a):
+from random import randint
 
+def select(a, k):
+    """
+    assumes 
+        0 <= k < len(a)
+    """
+    # 0 based, inclusive
+    def partition(low, high, piv):
+        piv_val = a[piv]
+        a[high], a[piv] = a[piv], a[high]
+        piv = low
+        for cur_pos in xrange(low, high):
+            if a[cur_pos] <= piv_val:
+                a[piv], a[cur_pos] = a[cur_pos], a[piv]
+                piv += 1
+        a[piv], a[high] = a[high], a[piv]
+        return piv
+    
+    cur_low = 0
+    cur_high = len(a) - 1
+    
+    while cur_low < cur_high:
+        piv = randint(cur_low, cur_high)
+        piv = partition(cur_low, cur_high, piv)
+        piv_dist = piv - cur_low + 1
+        if piv_dist == k:
+            return a[piv_dist]
+        elif piv_dist > k:
+            cur_high = piv_dist - 1
+        else:
+            k -= piv_dist
+            cur_low = piv + 1
+    
+        

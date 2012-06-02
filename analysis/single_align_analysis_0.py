@@ -78,9 +78,19 @@ class SingleContig(SeqInterval):
         return a list of the coverage of each nuc in sequence 
         """ 
         nuc_cov = []
-        cur_nuc = 0
         cur_cov = 1
+        read_start = 0
+        read_end = 0
         #TODO:
+        for cur_nuc in xrange(self.reads[0].low, self.reads[-1].high):
+            if read_start < len(self.reads):
+                if cur_nuc == self.reads[read_start].low:
+                    cur_cov += 1
+                    read_start += 1
+            if cur_nuc == self.reads[read_end].high + 1:
+                cur_cov -= 1
+                read_end -= 1
+            nuc_cov.append(cur_cov)
         return nuc_cov
         
 
