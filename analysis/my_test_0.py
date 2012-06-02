@@ -15,13 +15,15 @@
 #
 #  You should have received a copy of the GNU General Public License
 
-from random import randint
+from random import shuffle
 
 from general_util import select
 
 def main():
     for x in xrange(1, 11):
-        print select(range(1, 11), x)
+        a = range(1, 11)
+        shuffle(a)
+        print select(a, x)
 
 if __name__ == '__main__':
     main()
