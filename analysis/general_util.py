@@ -20,7 +20,7 @@ from random import randint
 def select(a, k):
     """
     assumes 
-        0 <= k < len(a)
+        1 <= k <= len(a)
     """
     # 0 based, inclusive
     def partition(low, high, piv):
