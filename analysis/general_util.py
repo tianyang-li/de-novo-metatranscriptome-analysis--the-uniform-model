@@ -37,14 +37,14 @@ def select(a, k):
     cur_low = 0
     cur_high = len(a) - 1
     
-    while cur_low < cur_high:
+    while cur_low <= cur_high:
         piv = randint(cur_low, cur_high)
         piv = partition(cur_low, cur_high, piv)
         piv_dist = piv - cur_low + 1
         if piv_dist == k:
-            return a[piv_dist]
+            return a[piv]
         elif piv_dist > k:
-            cur_high = piv_dist - 1
+            cur_high = piv - 1
         else:
             k -= piv_dist
             cur_low = piv + 1

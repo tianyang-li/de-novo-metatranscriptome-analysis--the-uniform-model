@@ -15,21 +15,13 @@
 #
 #  You should have received a copy of the GNU General Public License
 
-from short_contig_analysis_single_0 import single_contig_calc_t_stat
-
 from random import randint
 
+from general_util import select
+
 def main():
-    eff_len = 1000
-    n_reads = 50
-    runs = 100000
-    for _ in xrange(runs):
-        read_pos = [0] * eff_len
-        read_pos[0] = 1
-        read_pos[-1] = 1
-        for _ in xrange(n_reads):
-            read_pos[randint(0, eff_len - 1)] += 1
-        print single_contig_calc_t_stat(read_pos, eff_len, n_reads)
+    for x in xrange(1, 11):
+        print select(range(1, 11), x)
 
 if __name__ == '__main__':
     main()
