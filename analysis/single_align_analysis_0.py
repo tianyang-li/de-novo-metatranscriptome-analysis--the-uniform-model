@@ -81,7 +81,6 @@ class SingleContig(SeqInterval):
         cur_cov = 0
         read_start = 0
         read_end = 0
-        #TODO:
         for cur_nuc in xrange(self.reads[0].low, self.reads[-1].high):
             while (read_start < len(self.reads) 
                    and cur_nuc == self.reads[read_start].low):
