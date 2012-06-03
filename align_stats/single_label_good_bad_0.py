@@ -19,7 +19,39 @@ import getopt
 import sys
 
 def main(args):
-
+    """
+    this is the output i have
+    
+    0  contig.low
+    1  contig.high - contig.low + 1
+    2  est_len
+    3  found_iv.type
+    4  found_iv.low
+    5  found_iv.high - found_iv.low + 1
+    6  coverage median
+    7  coverage max
+    8  coverage list
+    9  overlap_type
+    """
+    rel_err_bnd = None # relative error in estimation bounds
+    abs_err_bnd = None # absolute error bound
+    """
+    contigs satisfying
+        rel_err <= rel_err_bnd or abs_err <= abs_err_bnd
+    will be labled as good
+    otherwise bad 
+    """
+    try:
+        opts, args = getopt.getopt(args, 'i:r:a:')
+    except getopt.GetoptError as err:
+        print >> sys.stderr, str(err)
+        sys.exit(1)
+    contig_info = None
+    if (not rel_err_bnd
+        or not abs_err_bnd
+        or not contig_info):
+        print >> sys.stderr, "missing"
+        sys.exit(1)
 
 if __name__ == '__main__':
     main(sys.argv[1:])    
