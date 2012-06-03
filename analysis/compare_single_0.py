@@ -19,7 +19,14 @@ import getopt
 import sys
 
 def main(args):
-
+    embl_file = None
+    psl1_file = None
+    psl2_file = None
+    if (not embl_file
+        or not psl2_file 
+        or not psl1_file):
+        print >> sys.stderr, "missing"
+        sys.exit(1)
 
 if __name__ == '__main__':
     main(sys.argv[1:])    
