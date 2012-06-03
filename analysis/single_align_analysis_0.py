@@ -198,29 +198,38 @@ def main(args):
     for chrom in chroms.itervalues():
         chrom.assemble_contigs(d_max)
         for contig in chrom.contigs:
-            #TODO: try cov_max - cov_median
             nuc_coverage = contig.nuc_coverage()
             est_len = contig.est_len(read_len)
-            cov_diff = contig.max_coverage() - contig.coverage(read_len)
+            
+            def format_coverage(n_covs):
+                cov_str = ""
+                for cur_cov in n_covs:
+                    cov_str = "%s%d," % (cov_str, cur_cov)
+                cov_str = "[%s]" % cov_str
+                return cov_str
+            
+            cov_str = format_coverage(nuc_coverage)
+            
             coverage_median = median(nuc_coverage)
             coverage_max = max(nuc_coverage)
+            
             for found_iv in chrom.iv_find_features(contig):
                 print contig.low, contig.high - contig.low + 1,
-                print est_len, cov_diff,
+                print est_len, 
                 print found_iv.type,
                 print found_iv.low, found_iv.high - found_iv.low + 1,
-                print coverage_median, coverage_max,
+                print coverage_median, coverage_max, cov_str, 
                 print SeqOverlapType.overlap_type(contig, found_iv)
                 """
                 0  contig.low
                 1  contig.high - contig.low + 1
                 2  est_len
-                3  cov_diff
-                4  found_iv.type
-                5  found_iv.low
-                6  found_iv.high - found_iv.low + 1
-                7  coverage median
-                8  coverage max
+                3  found_iv.type
+                4  found_iv.low
+                5  found_iv.high - found_iv.low + 1
+                6  coverage median
+                7  coverage max
+                8  coverage list
                 9  overlap_type
                 """
 
