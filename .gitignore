@@ -1,0 +1,10 @@
+# alignment file
+*.psl
+*.sam
+*.bam
+
+# eclipse project file
+.*project
+
+
+

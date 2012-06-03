@@ -15,6 +15,8 @@
 #
 #  You should have received a copy of the GNU General Public License
 
+from __future__ import division
+
 import getopt
 import sys
 
@@ -47,6 +49,15 @@ def main(args):
         print >> sys.stderr, str(err)
         sys.exit(1)
     contig_info = None
+    
+    for opt, arg in opts:
+        if opt == '-i':
+            contig_info = arg
+        if opt == '-r':
+            rel_err_bnd = float(arg)
+        if opt == '-a':
+            abs_err_bnd = float(arg)
+            
     if (not rel_err_bnd
         or not abs_err_bnd
         or not contig_info):
