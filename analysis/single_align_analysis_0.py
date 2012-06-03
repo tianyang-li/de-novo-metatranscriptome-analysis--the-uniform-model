@@ -83,11 +83,12 @@ class SingleContig(SeqInterval):
         read_end = 0
         #TODO:
         for cur_nuc in xrange(self.reads[0].low, self.reads[-1].high):
-            if read_start < len(self.reads):
-                if cur_nuc == self.reads[read_start].low:
-                    cur_cov += 1
-                    read_start += 1
-            if cur_nuc == self.reads[read_end].high + 1:
+            while (read_start < len(self.reads) 
+                   and cur_nuc == self.reads[read_start].low):
+                cur_cov += 1
+                read_start += 1
+            while (read_end < len(self.reads) 
+                   and cur_nuc == self.reads[read_end].high + 1):
                 cur_cov -= 1
                 read_end += 1
             nuc_cov.append(cur_cov)
@@ -202,11 +203,14 @@ def main(args):
             nuc_coverage = contig.nuc_coverage()
             est_len = contig.est_len(read_len)
             cov_diff = contig.max_coverage() - contig.coverage(read_len)
+            coverage_median = median(nuc_coverage)
+            coverage_max = max(nuc_coverage)
             for found_iv in chrom.iv_find_features(contig):
                 print contig.low, contig.high - contig.low + 1,
                 print est_len, cov_diff,
                 print found_iv.type,
                 print found_iv.low, found_iv.high - found_iv.low + 1,
+                print coverage_median, coverage_max,
                 print SeqOverlapType.overlap_type(contig, found_iv)
                 """
                 0  contig.low
@@ -216,7 +220,9 @@ def main(args):
                 4  found_iv.type
                 5  found_iv.low
                 6  found_iv.high - found_iv.low + 1
-                7  overlap_type
+                7  coverage median
+                8  coverage max
+                9  overlap_type
                 """
 
 if __name__ == '__main__':
