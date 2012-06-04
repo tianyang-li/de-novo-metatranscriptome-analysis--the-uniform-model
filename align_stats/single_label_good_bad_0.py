@@ -20,6 +20,8 @@ from __future__ import division
 import getopt
 import sys
 
+from numpy import histogram
+
 def keep_contig(est_len, true_len, reb, aeb):
     """
     reb - relative error bound
@@ -31,20 +33,6 @@ def keep_contig(est_len, true_len, reb, aeb):
     return False
 
 def main(args):
-    """
-    this is the output i have
-    
-    0  contig.low
-    1  contig.high - contig.low + 1
-    2  est_len
-    3  found_iv.type
-    4  found_iv.low
-    5  found_iv.high - found_iv.low + 1
-    6  coverage median
-    7  coverage max
-    8  coverage list
-    9  overlap_type
-    """
     rel_err_bnd = None # relative error in estimation bounds
     abs_err_bnd = None # absolute error bound
     """
@@ -54,12 +42,13 @@ def main(args):
     otherwise bad 
     """
     try:
-        opts, args = getopt.getopt(args, 'i:r:a:p:')
+        opts, args = getopt.getopt(args, 'i:r:a:p:b:')
     except getopt.GetoptError as err:
         print >> sys.stderr, str(err)
         sys.exit(1)
     contig_info = None
     out_prefix = None
+    bins = None
     
     for opt, arg in opts:
         if opt == '-i':
@@ -70,9 +59,12 @@ def main(args):
             abs_err_bnd = float(arg)
         if opt == '-p':
             out_prefix = arg
+        if opt == '-b':
+            bins = int(arg)
             
     if (not rel_err_bnd
         or not out_prefix
+        or not bins
         or not abs_err_bnd
         or not contig_info):
         print >> sys.stderr, "missing"
@@ -80,6 +72,22 @@ def main(args):
     
     good_out = open("%s_good" % out_prefix, 'w')
     bad_out = open("%s_bad" % out_prefix, 'w')
+    
+    with open(contig_info, 'r') as fin:
+        for line in fin:
+            """
+            0  contig.low
+            1  contig.high - contig.low + 1
+            2  est_len
+            3  found_iv.type
+            4  found_iv.low
+            5  found_iv.high - found_iv.low + 1
+            6  coverage median
+            7  coverage max
+            8  coverage list
+            9  overlap_type
+            """            
+            entries = line.strip().split(" ")
     
     good_out.close()
     bad_out.close()
