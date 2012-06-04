@@ -35,7 +35,11 @@ def bin_cov(nuc_covs, bins):
     bin_percs = []
     bin_size = int(len(nuc_covs) / bins)
     cov_tot = sum(nuc_covs)
+    larger_bin = len(nuc_covs) - bin_size * bins
     cur_start = 0
+    for _ in xrange(larger_bin):
+        bin_percs.append(sum(nuc_covs[cur_start:cur_start + bin_size + 1]) / cov_tot)
+        cur_start += (bin_size + 1)
     while cur_start < len(nuc_covs):
         bin_percs.append(sum(nuc_covs[cur_start:cur_start + bin_size]) / cov_tot)
         cur_start += bin_size
