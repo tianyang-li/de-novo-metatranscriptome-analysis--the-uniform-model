@@ -20,8 +20,6 @@ from __future__ import division
 import getopt
 import sys
 
-from numpy import histogram
-
 def keep_contig(est_len, true_len, reb, aeb):
     """
     reb - relative error bound
@@ -31,6 +29,13 @@ def keep_contig(est_len, true_len, reb, aeb):
         or abs(est_len - true_len) / true_len <= reb):
         return True
     return False
+
+
+def bin_cov(nuc_covs, bins):
+    bin_percs = []
+    #TODO:
+    return bin_percs
+
 
 def main(args):
     rel_err_bnd = None # relative error in estimation bounds
@@ -68,6 +73,9 @@ def main(args):
         or not abs_err_bnd
         or not contig_info):
         print >> sys.stderr, "missing"
+        print >> sys.stderr, opts, args
+        print >> sys.stderr, rel_err_bnd, abs_err_bnd,
+        print >> sys.stderr, bins, contig_info, out_prefix
         sys.exit(1)
     
     good_out = open("%s_good" % out_prefix, 'w')
@@ -88,9 +96,21 @@ def main(args):
             9  overlap_type
             """            
             entries = line.strip().split(" ")
+            nuc_covs = entries[8][1:-2].split(",")
+            nuc_covs = map(lambda s: int(s), nuc_covs)
+            cov_bins = bin_cov(nuc_covs, bins)
+            bin_str = ""
+            for bin_perc in cov_bins:
+                bin_str = "%s%f " % (bin_str, bin_perc)
+            if keep_contig(int(entries[2]), int(entries[5]),
+                           rel_err_bnd, abs_err_bnd):
+                good_out.write("%s\n" % bin_str)
+            else:
+                bad_out.write("%s\n" % bin_str)
     
     good_out.close()
     bad_out.close()
+
 
 if __name__ == '__main__':
     main(sys.argv[1:])    
