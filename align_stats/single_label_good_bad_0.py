@@ -33,7 +33,12 @@ def keep_contig(est_len, true_len, reb, aeb):
 
 def bin_cov(nuc_covs, bins):
     bin_percs = []
-    #TODO:
+    bin_size = int(len(nuc_covs) / bins)
+    cov_tot = sum(nuc_covs)
+    cur_start = 0
+    while cur_start < len(nuc_covs):
+        bin_percs.append(sum(nuc_covs[cur_start:cur_start + bin_size]) / cov_tot)
+        cur_start += bin_size
     return bin_percs
 
 
