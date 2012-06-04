@@ -20,6 +20,16 @@ from __future__ import division
 import getopt
 import sys
 
+def keep_contig(est_len, true_len, reb, aeb):
+    """
+    reb - relative error bound
+    aeb - absolute error bound
+    """
+    if (abs(est_len - true_len) <= aeb
+        or abs(est_len - true_len) / true_len <= reb):
+        return True
+    return False
+
 def main(args):
     """
     this is the output i have
@@ -44,11 +54,12 @@ def main(args):
     otherwise bad 
     """
     try:
-        opts, args = getopt.getopt(args, 'i:r:a:')
+        opts, args = getopt.getopt(args, 'i:r:a:p:')
     except getopt.GetoptError as err:
         print >> sys.stderr, str(err)
         sys.exit(1)
     contig_info = None
+    out_prefix = None
     
     for opt, arg in opts:
         if opt == '-i':
@@ -57,12 +68,21 @@ def main(args):
             rel_err_bnd = float(arg)
         if opt == '-a':
             abs_err_bnd = float(arg)
+        if opt == '-p':
+            out_prefix = arg
             
     if (not rel_err_bnd
+        or not out_prefix
         or not abs_err_bnd
         or not contig_info):
         print >> sys.stderr, "missing"
         sys.exit(1)
+    
+    good_out = open("%s_good" % out_prefix, 'w')
+    bad_out = open("%s_bad" % out_prefix, 'w')
+    
+    good_out.close()
+    bad_out.close()
 
 if __name__ == '__main__':
     main(sys.argv[1:])    
