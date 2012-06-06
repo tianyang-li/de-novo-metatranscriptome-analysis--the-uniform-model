@@ -162,4 +162,10 @@ class Chrom(object):
                 GC += 1
         return GC / (iv.high - iv.low + 1)
     
-    
+
+def operon_analysis(contig, features):
+    """
+    how to improve analysis by
+    taking into account operons in bacteria??? 
+    """
+
