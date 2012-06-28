@@ -6,5 +6,5 @@
 # eclipse project file
 .*project
 
-
+*.pyc
 
