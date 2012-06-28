@@ -19,6 +19,8 @@ from __future__ import division
 
 import sys
 
+from HTMLParser import HTMLParser
+
 def main(args):
     if not args:
         print >> sys.stderr, "missing"
