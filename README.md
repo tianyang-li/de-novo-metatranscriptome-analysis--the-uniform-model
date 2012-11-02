@@ -1,3 +1,7 @@
+This project is continued [here](https://github.com/tianyang-li/rna-seq-len-est-0).
+
+***
+
 # Introduction
 This tool offers a way to estimate transcript abundance without the use of reference databases for metatranscriptome data.
 
