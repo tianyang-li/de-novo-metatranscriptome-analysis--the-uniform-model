@@ -1,4 +1,4 @@
-This project is continued [here](https://github.com/tianyang-li/rna-seq-len-est-0).
+**This project is continued [here](https://github.com/tianyang-li/rna-seq-len-est-0).**
 
 ***
 
